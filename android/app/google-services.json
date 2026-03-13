@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "589462914987",
+    "project_id": "ic-smart-conferenceapp",
+    "storage_bucket": "ic-smart-conferenceapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:589462914987:android:859c890c71f49662fd74ee",
+        "android_client_info": {
+          "package_name": "com.example.conference_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB9_F5anppUd3VCG9BeJc2Aseytqdz_JNE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
