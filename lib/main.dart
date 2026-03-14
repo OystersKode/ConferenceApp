@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-import 'features/dashboard/dashboard_screen.dart';
-import 'features/profile/profile_screen.dart';
+import 'routes/app_routes.dart';
 import 'core/theme/app_theme.dart';
 import 'providers/auth_provider.dart';
 
@@ -29,15 +28,11 @@ class ICSmartConferenceApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'IC-SMART 2026',
       theme: AppTheme.lightTheme,
       debugShowCheckedModeBanner: false,
-      initialRoute: '/',
-      routes: {
-        '/': (context) => const DashboardScreen(),
-        '/profile': (context) => const ProfileScreen(),
-      },
+      routerConfig: AppRouter.router,
     );
   }
 }

@@ -48,3 +48,6 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 }
+
+class AppRoutes {
+}

@@ -3,13 +3,13 @@ import '../../../core/constants/app_colors.dart';
 
 class FeatureCard extends StatelessWidget {
   final String title;
-  final IconData icon;
+  final String iconPath;
   final VoidCallback onTap;
 
   const FeatureCard({
     super.key,
     required this.title,
-    required this.icon,
+    required this.iconPath,
     required this.onTap,
   });
 
@@ -38,14 +38,20 @@ class FeatureCard extends StatelessWidget {
                 color: AppColors.background,
                 borderRadius: BorderRadius.circular(15),
               ),
-              child: Icon(icon, color: AppColors.primary, size: 28),
+              child: Image.asset(
+                iconPath,
+                width: 28,
+                height: 28,
+                errorBuilder: (context, error, stackTrace) => 
+                    Icon(Icons.help_outline, color: AppColors.primary, size: 28),
+              ),
             ),
             const SizedBox(height: 12),
             Text(
               title,
               style: const TextStyle(
                 color: AppColors.dark,
-                fontSize: 12, // Reduced font size to avoid overflow
+                fontSize: 12,
                 fontWeight: FontWeight.w600,
               ),
               textAlign: TextAlign.center,

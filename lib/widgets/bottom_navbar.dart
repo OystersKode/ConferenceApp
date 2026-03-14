@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../core/constants/app_colors.dart';
 
 class CustomBottomNavBar extends StatelessWidget {
@@ -25,11 +26,15 @@ class CustomBottomNavBar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _buildNavItem(Icons.home, 'HOME', true),
+          _buildNavItem(Icons.home, 'HOME', GoRouterState.of(context).uri.toString() == '/', onTap: () {
+            context.go('/');
+          }),
           _buildNavItem(Icons.notifications_none, 'ALERTS', false),
-          _buildNavItem(Icons.qr_code_scanner, 'SCANNER', false),
-          _buildNavItem(Icons.person_outline, 'PROFILE', false, onTap: () {
-            Navigator.pushNamed(context, '/profile');
+          _buildNavItem(Icons.qr_code_scanner, 'SCANNER', GoRouterState.of(context).uri.toString() == '/digital-id', onTap: () {
+            context.push('/digital-id');
+          }),
+          _buildNavItem(Icons.person_outline, 'PROFILE', GoRouterState.of(context).uri.toString() == '/profile', onTap: () {
+            context.push('/profile');
           }),
         ],
       ),
@@ -39,6 +44,7 @@ class CustomBottomNavBar extends StatelessWidget {
   Widget _buildNavItem(IconData icon, String label, bool isActive, {VoidCallback? onTap}) {
     return GestureDetector(
       onTap: onTap,
+      behavior: HitTestBehavior.opaque,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
