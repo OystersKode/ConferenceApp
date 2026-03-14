@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 
@@ -8,74 +9,84 @@ class DashboardHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
 
-    return ClipRRect(
-      borderRadius: const BorderRadius.only(
-        bottomLeft: Radius.circular(40),
-        bottomRight: Radius.circular(40),
+    return Container(
+      width: double.infinity,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [AppColors.primary, AppColors.secondary],
+        ),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(40),
+          bottomRight: Radius.circular(40),
+        ),
       ),
-      child: Container(
-        width: double.infinity,
-        height: 320, // Total height of the header section reverted to 320
-        color: AppColors.primary, // Fallback color
-        child: Stack(
+      child: ClipRRect(
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(40),
+          bottomRight: Radius.circular(40),
+        ),
+        child: Column(
           children: [
-            // 1. THE POSTER IMAGE (Covers the entire green frame)
-            Positioned.fill(
-              child: Image.asset(
-                'assets/images/banner.jpeg',
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [AppColors.primary, AppColors.secondary],
+            // 1. TOP NAV BAR SECTION (iOS style Glassmorphism)
+            ClipRect(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                child: Container(
+                  padding: EdgeInsets.only(
+                    top: statusBarHeight + 5,
+                    left: 10,
+                    right: 10,
+                    bottom: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.12),
+                    border: Border(
+                      bottom: BorderSide(
+                        color: Colors.white.withOpacity(0.1),
+                        width: 1,
+                      ),
                     ),
                   ),
-                  child: const Center(
-                    child: Text('🌿', style: TextStyle(fontSize: 80)),
-                  ),
-                ),
-              ),
-            ),
-            
-            // 2. GRADIENT OVERLAY (Subtle shadow at top for icon visibility)
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              height: statusBarHeight + 80,
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.black.withOpacity(0.4),
-                      Colors.transparent,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.menu, color: Colors.white, size: 28),
+                        onPressed: () => Scaffold.of(context).openDrawer(),
+                      ),
+                      const Text(
+                        'IC-SMART 2026',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.1,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.search, color: Colors.white, size: 28),
+                        onPressed: () {},
+                      ),
                     ],
                   ),
                 ),
               ),
             ),
             
-            // 3. TOP NAVIGATION ICONS (Menu & Search)
-            Positioned(
-              top: statusBarHeight + 10, // Margin from the top status bar
-              left: 10,
-              right: 10,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.menu, color: Colors.white, size: 28),
-                    onPressed: () => Scaffold.of(context).openDrawer(),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.search, color: Colors.white, size: 28),
-                    onPressed: () {},
-                  ),
-                ],
+            const SizedBox(height: 10),
+            
+            // 2. THE POSTER IMAGE (Edge-to-edge, fully visible height-wise)
+            Image.asset(
+              'assets/images/banner.jpeg',
+              width: double.infinity,
+              fit: BoxFit.fitWidth,
+              errorBuilder: (context, error, stackTrace) => Container(
+                height: 200,
+                width: double.infinity,
+                color: Colors.white10,
+                child: const Center(child: Text('🌿', style: TextStyle(fontSize: 60))),
               ),
             ),
           ],

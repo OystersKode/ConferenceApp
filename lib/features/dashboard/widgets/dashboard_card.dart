@@ -32,29 +32,26 @@ class FeatureCard extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppColors.background,
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: Image.asset(
-                iconPath,
-                width: 28,
-                height: 28,
-                errorBuilder: (context, error, stackTrace) => 
-                    Icon(Icons.help_outline, color: AppColors.primary, size: 28),
-              ),
+            // Displaying icon directly without the background block
+            Image.asset(
+              iconPath,
+              width: 80, // Increased size for better visibility
+              height: 80,
+              errorBuilder: (context, error, stackTrace) => 
+                  Icon(Icons.help_outline, color: AppColors.primary, size: 45),
             ),
             const SizedBox(height: 12),
-            Text(
-              title,
-              style: const TextStyle(
-                color: AppColors.dark,
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Text(
+                title,
+                style: const TextStyle(
+                  color: AppColors.dark,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
             ),
           ],
         ),

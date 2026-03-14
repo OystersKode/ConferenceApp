@@ -6,6 +6,13 @@ class OrganizerSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // List of partner logos from assets/PartnerLogo/ConferencePartners
+    final List<String> partnerLogos = [
+      'assets/PartnerLogo/ConferencePartners/PES.png',
+      'assets/PartnerLogo/ConferencePartners/AIP_Logo.png',
+      'assets/PartnerLogo/ConferencePartners/Taru Publications.jpg.jpeg',
+    ];
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
@@ -25,7 +32,7 @@ class OrganizerSection extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   const Text(
-                    'ORGANISERS',
+                    'CONFERENCE PARTNERS',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
@@ -37,7 +44,7 @@ class OrganizerSection extends StatelessWidget {
               TextButton(
                 onPressed: () {},
                 child: const Text(
-                  'VIEW ALL',
+                  '',
                   style: TextStyle(color: AppColors.secondary, fontSize: 12),
                 ),
               ),
@@ -47,13 +54,12 @@ class OrganizerSection extends StatelessWidget {
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
-              children: List.generate(
-                4,
-                (index) => Container(
+              children: partnerLogos.map((logoPath) {
+                return Container(
                   margin: const EdgeInsets.only(right: 15),
-                  padding: const EdgeInsets.all(10),
-                  height: 60,
-                  width: 80,
+                  padding: const EdgeInsets.all(8),
+                  height: 70,
+                  width: 110,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
@@ -64,11 +70,16 @@ class OrganizerSection extends StatelessWidget {
                       )
                     ],
                   ),
-                  child: const Center(
-                    child: Text('🏢', style: TextStyle(fontSize: 24)),
+                  child: Center(
+                    child: Image.asset(
+                      logoPath,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) => 
+                          const Icon(Icons.corporate_fare, color: Colors.grey),
+                    ),
                   ),
-                ),
-              ),
+                );
+              }).toList(),
             ),
           ),
         ],

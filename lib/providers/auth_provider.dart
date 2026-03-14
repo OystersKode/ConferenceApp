@@ -1,16 +1,89 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../services/auth_service.dart';
+import '../models/user_model.dart';
 
 class AuthProvider with ChangeNotifier {
-  bool _isAuthenticated = false;
-  bool get isAuthenticated => _isAuthenticated;
+  final AuthService _authService = AuthService();
+  UserModel? _userModel;
+  bool _isLoading = false;
+  String? _error;
 
-  void login() {
-    _isAuthenticated = true;
+  UserModel? get userModel => _userModel;
+  bool get isLoading => _isLoading;
+  String? get error => _error;
+  bool get isAuthenticated => FirebaseAuth.instance.currentUser != null;
+
+  AuthProvider() {
+    _init();
+  }
+
+  void _init() async {
+    if (isAuthenticated) {
+      await refreshUserModel();
+    }
+  }
+
+  Future<void> refreshUserModel() async {
+    _userModel = await _authService.getCurrentUserModel();
     notifyListeners();
   }
 
-  void logout() {
-    _isAuthenticated = false;
+  Future<void> submitSignupRequest({
+    required String name,
+    required String email,
+    required String role,
+    required String password,
+    String? paperTitle,
+  }) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      await _authService.submitSignupRequest(
+        name: name,
+        email: email,
+        role: role,
+        password: password,
+        paperTitle: paperTitle,
+      );
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _error = e.toString().replaceFirst('Exception: ', '');
+      _isLoading = false;
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  Future<bool> login(String email, String password) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      await _authService.login(email, password);
+      await refreshUserModel();
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString().replaceFirst('Exception: ', '');
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<void> logout() async {
+    await _authService.logout();
+    _userModel = null;
+    notifyListeners();
+  }
+
+  void clearError() {
+    _error = null;
     notifyListeners();
   }
 }

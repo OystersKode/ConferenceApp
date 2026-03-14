@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../widgets/dashboard_card.dart';
 import '../../widgets/app_header.dart';
 import '../../routes/app_routes.dart';
@@ -9,23 +10,23 @@ class DashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final List<Map<String, dynamic>> menuItems = [
-      {'title': 'Event Details', 'icon': Icons.info, 'route': AppRoutes.eventDetails},
-      {'title': 'Speakers', 'icon': Icons.people, 'route': AppRoutes.speakers},
-      {'title': 'Program Schedule', 'icon': Icons.calendar_today, 'route': AppRoutes.schedule},
-      {'title': 'Participants', 'icon': Icons.person, 'route': AppRoutes.participants},
-      {'title': 'Sponsors', 'icon': Icons.business, 'route': AppRoutes.sponsors},
-      {'title': 'Organisers', 'icon': Icons.corporate_fare, 'route': AppRoutes.organisers},
-      {'title': 'Committees', 'icon': Icons.group, 'route': AppRoutes.committees},
-      {'title': 'Chat', 'icon': Icons.chat, 'route': AppRoutes.chat},
-      {'title': 'Appointments', 'icon': Icons.book_online, 'route': AppRoutes.appointments},
-      {'title': 'Q&A', 'icon': Icons.question_answer, 'route': AppRoutes.qa},
-      {'title': 'PPT Download', 'icon': Icons.download, 'route': AppRoutes.pptDownload},
-      {'title': 'Feedback', 'icon': Icons.feedback, 'route': AppRoutes.feedback},
-      {'title': 'Support', 'icon': Icons.support_agent, 'route': AppRoutes.support},
+      {'title': 'Event Details', 'icon': Icons.info, 'route': '/event-details'},
+      {'title': 'Speakers', 'icon': Icons.people, 'route': '/speakers'},
+      {'title': 'Program Schedule', 'icon': Icons.calendar_today, 'route': '/schedule'},
+      {'title': 'Participants', 'icon': Icons.person, 'route': '/participants'},
+      {'title': 'Sponsors', 'icon': Icons.business, 'route': '/sponsors'},
+      {'title': 'Organisers', 'icon': Icons.corporate_fare, 'route': '/organisers'},
+      {'title': 'Committees', 'icon': Icons.group, 'route': '/committees'},
+      {'title': 'Chat', 'icon': Icons.chat, 'route': '/chat'},
+      {'title': 'Appointments', 'icon': Icons.book_online, 'route': '/appointments'},
+      {'title': 'Q&A', 'icon': Icons.question_answer, 'route': '/qa'},
+      {'title': 'PPT Download', 'icon': Icons.download, 'route': '/ppt-download'},
+      {'title': 'Feedback', 'icon': Icons.feedback, 'route': '/feedback'},
+      {'title': 'Support', 'icon': Icons.support_agent, 'route': '/support'},
     ];
 
     return Scaffold(
-      appBar: const AppHeader(title: 'IC SMART Conference 2K26'),
+      appBar: const AppHeader(title: 'IC SMART 2026'),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: GridView.builder(
@@ -40,14 +41,11 @@ class DashboardScreen extends StatelessWidget {
             return DashboardCard(
               title: item['title'],
               icon: item['icon'],
-              onTap: () => Navigator.pushNamed(context, item['route']),
+              onTap: () => context.push(item['route']),
             );
           },
         ),
       ),
     );
   }
-}
-
-class AppRoutes {
 }

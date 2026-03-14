@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'widgets/header.dart';
 import 'widgets/dashboard_card.dart';
-import 'widgets/organizer_section.dart';
+import 'widgets/Conference_Partners_section.dart';
 import '../../widgets/bottom_navbar.dart';
 import '../drawer/sidebar_menu.dart';
 

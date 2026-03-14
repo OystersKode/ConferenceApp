@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
+import 'package:provider/provider.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/signup_screen.dart';
 import '../features/dashboard/dashboard_screen.dart';
@@ -12,15 +13,40 @@ import '../screens/support/support_screen.dart';
 import '../screens/feedback/feedback_screen.dart';
 import '../features/profile/profile_screen.dart';
 import '../screens/profile/digital_id_screen.dart';
+import '../screens/profile/profile_setup_screen.dart';
 import '../screens/speakers/speakers_screen.dart';
 import '../screens/presenters/presenters_screen.dart';
 import '../screens/sponsors/sponsors_screen.dart';
 import '../screens/organisers/organisers_screen.dart';
 import '../screens/ppt_download/ppt_download_screen.dart';
+import '../screens/admin/admin_approval_screen.dart';
+import '../providers/auth_provider.dart';
 
 class AppRouter {
   static final router = GoRouter(
     initialLocation: FirebaseAuth.instance.currentUser == null ? '/login' : '/',
+    redirect: (context, state) {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final bool loggedIn = authProvider.isAuthenticated;
+      final bool isLoggingIn = state.matchedLocation == '/login' || state.matchedLocation == '/signup';
+
+      if (!loggedIn) {
+        return isLoggingIn ? null : '/login';
+      }
+
+      // If logged in but profile is not complete, redirect to profile setup
+      if (loggedIn && 
+          authProvider.userModel != null && 
+          !authProvider.userModel!.profileComplete && 
+          state.matchedLocation != '/profile-setup' &&
+          state.matchedLocation != '/admin-approval') { 
+        return '/profile-setup';
+      }
+
+      if (isLoggingIn) return '/';
+
+      return null;
+    },
     routes: [
       GoRoute(
         path: '/login',
@@ -29,6 +55,14 @@ class AppRouter {
       GoRoute(
         path: '/signup',
         builder: (context, state) => const SignUpScreen(),
+      ),
+      GoRoute(
+        path: '/profile-setup',
+        builder: (context, state) => const ProfileSetupScreen(),
+      ),
+      GoRoute(
+        path: '/admin-approval',
+        builder: (context, state) => const AdminApprovalScreen(),
       ),
       GoRoute(
         path: '/',
