@@ -25,7 +25,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   final List<TextEditingController> _authorControllers = [TextEditingController()];
   
   File? _profileImage;
-  bool _isUploading = false;
+  bool _isSaving = false;
   final CloudinaryService _cloudinaryService = CloudinaryService();
 
   @override
@@ -43,7 +43,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery, imageQuality: 70);
     if (image != null) {
       setState(() {
         _profileImage = File(image.path);
@@ -51,17 +51,23 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     }
   }
 
+  int _getWordCount(String text) {
+    if (text.trim().isEmpty) return 0;
+    return text.trim().split(RegExp(r'\s+')).length;
+  }
+
   Future<void> _saveProfile() async {
     if (!_formKey.currentState!.validate()) return;
     
-    setState(() => _isUploading = true);
+    setState(() => _isSaving = true);
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final user = authProvider.userModel!;
 
     try {
       String? imageUrl = user.profilePhoto;
       if (_profileImage != null) {
-        imageUrl = await _cloudinaryService.uploadProfilePhoto(_profileImage!, user.uid) ?? '';
+        // Note: If Cloudinary credentials are not set, this will return null
+        imageUrl = await _cloudinaryService.uploadProfilePhoto(_profileImage!, user.uid) ?? user.profilePhoto;
       }
 
       final profileData = {
@@ -92,73 +98,157 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         );
       }
     } finally {
-      if (mounted) setState(() => _isUploading = false);
+      if (mounted) setState(() => _isSaving = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<AuthProvider>(context).userModel;
-    if (user == null) return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    final authProvider = Provider.of<AuthProvider>(context);
+    final user = authProvider.userModel;
+
+    if (user == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Complete Your Profile'),
+        title: const Text('Profile Setup'),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(24.0),
         child: Form(
           key: _formKey,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              GestureDetector(
-                onTap: _pickImage,
-                child: CircleAvatar(
-                  radius: 50,
-                  backgroundColor: Colors.grey[200],
-                  backgroundImage: _profileImage != null ? FileImage(_profileImage!) : null,
-                  child: _profileImage == null ? const Icon(Icons.camera_alt, size: 40) : null,
+              // Profile Photo
+              Center(
+                child: Stack(
+                  children: [
+                    CircleAvatar(
+                      radius: 60,
+                      backgroundColor: Colors.grey[200],
+                      backgroundImage: _profileImage != null 
+                          ? FileImage(_profileImage!) 
+                          : (user.profilePhoto.isNotEmpty ? NetworkImage(user.profilePhoto) : null) as ImageProvider?,
+                      child: _profileImage == null && user.profilePhoto.isEmpty
+                          ? const Icon(Icons.person, size: 60, color: Colors.grey)
+                          : null,
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: CircleAvatar(
+                        backgroundColor: AppColors.primary,
+                        radius: 18,
+                        child: IconButton(
+                          icon: const Icon(Icons.camera_alt, size: 18, color: Colors.white),
+                          onPressed: _pickImage,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 10),
-              const Text('Upload Profile Photo'),
-              const SizedBox(height: 20),
-              _buildTextField(_phoneController, 'Phone Number', Icons.phone, keyboardType: TextInputType.phone),
-              _buildTextField(_aboutController, 'About Me (Max 150 words)', Icons.info_outline, maxLines: 3),
-              _buildTextField(_countryController, 'Country', Icons.public),
-              _buildTextField(_designationController, 'Designation', Icons.work_outline),
-              _buildTextField(_organizationController, 'Company/Institute', Icons.business),
-              
+              const SizedBox(height: 32),
+
+              const Text('Personal Information', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 16),
+
+              _buildTextField(
+                controller: _phoneController,
+                label: 'Phone Number',
+                hint: '+1234567890',
+                icon: Icons.phone_outlined,
+                keyboardType: TextInputType.phone,
+              ),
+
+              _buildTextField(
+                controller: _countryController,
+                label: 'Country',
+                hint: 'e.g. USA',
+                icon: Icons.public_outlined,
+              ),
+
+              _buildTextField(
+                controller: _designationController,
+                label: 'Designation',
+                hint: 'e.g. Professor / Research Scholar',
+                icon: Icons.work_outline,
+              ),
+
+              _buildTextField(
+                controller: _organizationController,
+                label: 'Company/Institute',
+                hint: 'e.g. Stanford University',
+                icon: Icons.business_outlined,
+              ),
+
+              _buildTextField(
+                controller: _aboutController,
+                label: 'About Me',
+                hint: 'Brief bio (Max 150 words)',
+                icon: Icons.info_outline,
+                maxLines: 4,
+                validator: (value) {
+                  if (value == null || value.isEmpty) return 'Please tell us about yourself';
+                  if (_getWordCount(value) > 150) return 'About Me must be max 150 words';
+                  return null;
+                },
+              ),
+
               if (user.role == 'presenter') ...[
-                const Divider(height: 40),
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text('Paper Title', style: TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 32),
+                const Text('Paper Details', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 16),
+
+                // Paper Title (Read-only)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Paper Title', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
+                    const SizedBox(height: 8),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.grey[300]!),
+                      ),
+                      child: Text(
+                        user.paperTitle ?? 'N/A',
+                        style: const TextStyle(color: Colors.black87),
+                      ),
+                    ),
+                  ],
                 ),
+                const SizedBox(height: 24),
+
+                // Corresponding Authors
+                const Text('Corresponding Authors', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
                 const SizedBox(height: 8),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(user.paperTitle ?? 'No paper title provided'),
-                ),
-                const SizedBox(height: 20),
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text('Corresponding Authors', style: TextStyle(fontWeight: FontWeight.bold)),
-                ),
                 ..._authorControllers.asMap().entries.map((entry) {
                   return Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
+                    padding: const EdgeInsets.only(bottom: 12.0),
                     child: Row(
                       children: [
-                        Expanded(child: _buildTextField(entry.value, 'Author Name', Icons.person_add_alt)),
-                        if (entry.key > 0)
+                        Expanded(
+                          child: TextFormField(
+                            controller: entry.value,
+                            decoration: InputDecoration(
+                              hintText: 'Author Name',
+                              filled: true,
+                              fillColor: Colors.white,
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                          ),
+                        ),
+                        if (_authorControllers.length > 1)
                           IconButton(
                             icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
                             onPressed: () => setState(() => _authorControllers.removeAt(entry.key)),
@@ -170,20 +260,28 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 TextButton.icon(
                   onPressed: () => setState(() => _authorControllers.add(TextEditingController())),
                   icon: const Icon(Icons.add),
-                  label: const Text('Add Another Author'),
+                  label: const Text('Add Corresponding Author'),
                 ),
               ],
-              
-              const SizedBox(height: 30),
+
+              const SizedBox(height: 40),
+
               SizedBox(
                 width: double.infinity,
-                height: 50,
+                height: 56,
                 child: ElevatedButton(
-                  onPressed: _isUploading ? null : _saveProfile,
-                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white),
-                  child: _isUploading ? const CircularProgressIndicator(color: Colors.white) : const Text('Save Profile'),
+                  onPressed: _isSaving ? null : _saveProfile,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                  ),
+                  child: _isSaving
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text('Complete Profile', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 ),
               ),
+              const SizedBox(height: 32),
             ],
           ),
         ),
@@ -191,19 +289,43 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String label, IconData icon, {TextInputType? keyboardType, int maxLines = 1}) {
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+    required IconData icon,
+    TextInputType? keyboardType,
+    int maxLines = 1,
+    String? Function(String?)? validator,
+  }) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 15),
-      child: TextFormField(
-        controller: controller,
-        keyboardType: keyboardType,
-        maxLines: maxLines,
-        decoration: InputDecoration(
-          labelText: label,
-          prefixIcon: Icon(icon),
-          border: const OutlineInputBorder(),
-        ),
-        validator: (value) => value == null || value.isEmpty ? 'This field is required' : null,
+      padding: const EdgeInsets.only(bottom: 20.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
+          const SizedBox(height: 8),
+          TextFormField(
+            controller: controller,
+            keyboardType: keyboardType,
+            maxLines: maxLines,
+            validator: validator ?? (value) => value == null || value.isEmpty ? 'This field is required' : null,
+            decoration: InputDecoration(
+              hintText: hint,
+              prefixIcon: Icon(icon, size: 20),
+              filled: true,
+              fillColor: Colors.white,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.grey[300]!),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.grey[300]!),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

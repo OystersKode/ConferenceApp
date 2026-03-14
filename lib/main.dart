@@ -28,11 +28,14 @@ class ICSmartConferenceApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Access the AuthProvider from the context
+    final authProvider = Provider.of<AuthProvider>(context);
+
     return MaterialApp.router(
       title: 'IC-SMART 2026',
       theme: AppTheme.lightTheme,
       debugShowCheckedModeBanner: false,
-      routerConfig: AppRouter.router,
+      routerConfig: AppRouter.getRouter(authProvider),
     );
   }
 }

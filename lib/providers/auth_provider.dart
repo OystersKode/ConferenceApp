@@ -7,10 +7,12 @@ class AuthProvider with ChangeNotifier {
   final AuthService _authService = AuthService();
   UserModel? _userModel;
   bool _isLoading = false;
+  bool _isInitialized = false;
   String? _error;
 
   UserModel? get userModel => _userModel;
   bool get isLoading => _isLoading;
+  bool get isInitialized => _isInitialized;
   String? get error => _error;
   bool get isAuthenticated => FirebaseAuth.instance.currentUser != null;
 
@@ -18,10 +20,16 @@ class AuthProvider with ChangeNotifier {
     _init();
   }
 
-  void _init() async {
+  Future<void> _init() async {
     if (isAuthenticated) {
       await refreshUserModel();
+      // Force logout if user is no longer approved or doesn't exist in DB
+      if (_userModel == null || _userModel!.status != 'approved') {
+        await logout();
+      }
     }
+    _isInitialized = true;
+    notifyListeners();
   }
 
   Future<void> refreshUserModel() async {
