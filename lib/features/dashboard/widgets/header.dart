@@ -6,9 +6,11 @@ class DashboardHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Get the status bar height to ensure icons don't overlap with battery/sim status
+    final double statusBarHeight = MediaQuery.of(context).padding.top;
+
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.only(top: 40, bottom: 30, left: 16, right: 16),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
@@ -20,95 +22,67 @@ class DashboardHeader extends StatelessWidget {
           bottomRight: Radius.circular(40),
         ),
       ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.menu, color: Colors.white),
-                onPressed: () => Scaffold.of(context).openDrawer(),
-              ),
-              const Text(
-                'IC-SMART 2026',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.search, color: Colors.white),
-                onPressed: () {},
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          // --- THE BANNER IMAGE ---
-          AspectRatio(
-            aspectRatio: 16 / 9, // Standard aspect ratio for banners
-            child: Container(
+      child: ClipRRect(
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(40),
+          bottomRight: Radius.circular(40),
+        ),
+        child: Stack(
+          children: [
+            // --- THE BANNER IMAGE (EDGE-TO-EDGE FROM TOP) ---
+            Image.asset(
+              'assets/images/banner.jpeg',
+              width: double.infinity,
+              height: 320, // Adjust height as needed
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  height: 320,
+                  width: double.infinity,
+                  color: Colors.transparent,
+                  child: const Center(
+                    child: Text('🌿', style: TextStyle(fontSize: 80)),
+                  ),
+                );
+              },
+            ),
+            
+            // --- TOP SHADOW GRADIENT (FOR ICON VISIBILITY) ---
+            Container(
+              height: statusBarHeight + 80,
               decoration: BoxDecoration(
-                color: Colors.white24,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: Image.asset(
-                  'assets/images/banner.jpeg',
-                  fit: BoxFit.contain, // Show whole image clearly
-                  errorBuilder: (context, error, stackTrace) {
-                    return const Center(
-                      child: Text('🌿', style: TextStyle(fontSize: 80)),
-                    );
-                  },
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.black.withOpacity(0.5),
+                    Colors.transparent,
+                  ],
                 ),
               ),
             ),
-          ),
-          const SizedBox(height: 20),
-          const Text(
-            'IC-SMART 2026',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 26,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1.2,
-            ),
-          ),
-          const Text(
-            'International Conference',
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: 16,
-              fontWeight: FontWeight.w400,
-            ),
-          ),
-          const SizedBox(height: 15),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Column(
+            
+            // --- MENU AND SEARCH ICONS (POSITIONED BELOW STATUS BAR) ---
+            Positioned(
+              top: statusBarHeight + 8, // Adds margin for battery/sim status
+              left: 10,
+              right: 10,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('WHEN', style: TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.bold)),
-                  Text('MARCH 27 - 28', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                  IconButton(
+                    icon: const Icon(Icons.menu, color: Colors.white, size: 28),
+                    onPressed: () => Scaffold.of(context).openDrawer(),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.search, color: Colors.white, size: 28),
+                    onPressed: () {},
+                  ),
                 ],
               ),
-              Container(
-                height: 30,
-                width: 1,
-                margin: const EdgeInsets.symmetric(horizontal: 25),
-                color: Colors.white24,
-              ),
-              const Column(
-                children: [
-                  Text('WHERE', style: TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.bold)),
-                  Text('SANGLI, MH, INDIA', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
-                ],
-              ),
-            ],
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }

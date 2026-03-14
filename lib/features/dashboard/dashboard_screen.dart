@@ -30,12 +30,19 @@ class DashboardScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
+            // --- EDGE-TO-EDGE HEADER WITH POSTER ---
             const DashboardHeader(),
+            
             const SizedBox(height: 15),
+            
+            // --- ORGANIZERS SECTION ---
             const OrganizerSection(),
+            
             const SizedBox(height: 10),
+            
+            // --- DASHBOARD GRID ---
             Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               child: GridView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -43,19 +50,22 @@ class DashboardScreen extends StatelessWidget {
                   crossAxisCount: 2,
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
-                  childAspectRatio: 1.2,
+                  childAspectRatio: 1.1, // Adjusted for better card fit
                 ),
                 itemCount: menuItems.length,
                 itemBuilder: (context, index) {
                   return FeatureCard(
                     title: menuItems[index]['title'],
                     icon: menuItems[index]['icon'],
-                    onTap: () {},
+                    onTap: () {
+                      // Add navigation logic here if needed
+                    },
                   );
                 },
               ),
             ),
-            const SizedBox(height: 80), // Space for floating navbar
+            
+            const SizedBox(height: 100), // Extra space for the floating navigation bar
           ],
         ),
       ),
