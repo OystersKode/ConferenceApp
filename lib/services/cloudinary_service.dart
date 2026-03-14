@@ -2,11 +2,14 @@ import 'dart:io';
 import 'package:cloudinary_public/cloudinary_public.dart';
 
 class CloudinaryService {
-  // Replace with your Cloudinary credentials
-  static const String _cloudName = 'YOUR_CLOUD_NAME';
-  static const String _uploadPreset = 'YOUR_UPLOAD_PRESET';
+  static const String _cloudName = 'dfx4py1jf';
+  static const String _uploadPreset = 'profile_photo_upload';
 
-  final CloudinaryPublic _cloudinary = CloudinaryPublic(_cloudName, _uploadPreset, cache: false);
+  late final CloudinaryPublic _cloudinary;
+
+  CloudinaryService() {
+    _cloudinary = CloudinaryPublic(_cloudName, _uploadPreset, cache: false);
+  }
 
   /// Uploads an image (profile photo) to Cloudinary
   Future<String?> uploadProfilePhoto(File imageFile, String userId) async {
@@ -15,10 +18,11 @@ class CloudinaryService {
         CloudinaryFile.fromFile(
           imageFile.path,
           folder: 'profile_photos',
-          publicId: userId,
+          publicId: 'user_$userId', // This will result in profile_photos/user_UID
           resourceType: CloudinaryResourceType.Image,
         ),
       );
+      print('Cloudinary Upload Success: ${response.secureUrl}');
       return response.secureUrl;
     } catch (e) {
       print('Cloudinary Image Upload Error: $e');
@@ -34,7 +38,7 @@ class CloudinaryService {
           file.path,
           folder: 'conference_resources',
           publicId: fileName,
-          resourceType: CloudinaryResourceType.Auto, // Auto detects PDF/PPT
+          resourceType: CloudinaryResourceType.Auto,
         ),
       );
       return response.secureUrl;
