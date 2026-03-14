@@ -85,4 +85,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'ic-smart-conferenceapp.firebasestorage.app',
     measurementId: 'G-G0TT686EWB',
   );
+
 }
