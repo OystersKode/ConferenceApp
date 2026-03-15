@@ -8,32 +8,25 @@ class CommitteesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<Map<String, String>> members = [
-      {
-        'name': 'Aravind Vijayaraghavan',
-        'org': 'The University of Manchester (UK)',
-        'emoji': '👤',
-      },
-      {
-        'name': 'Seema Ansari',
-        'org': 'C-MET/MeitY (India)',
-        'emoji': '👤',
-      },
-      {
-        'name': 'Ratheesh Ravendran',
-        'org': 'C-MET, Thrissur (India)',
-        'emoji': '👤',
-      },
-      {
-        'name': 'Antonio Correia',
-        'org': 'Phantoms Foundation (Spain)',
-        'emoji': '👤',
-      },
-      {
-        'name': 'Elena Rossi',
-        'org': 'University of Cambridge (UK)',
-        'emoji': '👤',
-      },
+    final List<String> committeeMembers = [
+      'Dr. A. B. Kakade',
+      'Dr. L. M. Jugulkar',
+      'Dr. S. S. Patil',
+      'Dr. S. B. Kumbhar',
+      'Dr. S. S. Shirogupikar',
+      'Dr. K. S. Patil',
+      'Dr. S. K. Patil',
+      'Prof. D. S. Patil',
+      'Dr. A. C. Adamuthe',
+      'Dr. V. N. Kalkhambkar',
+      'Dr. S. R. Desai',
+      'Dr. Manisha Pawar',
+      'Dr. S. R. Patil',
+      'Dr. P. D. Kumbhar',
+      'Dr. R. A. Medar',
+      'Dr. M. S. Patil',
+      'Dr. M. B. Mandale',
+      'Dr. Pratibha Jagtap',
     ];
 
     return Scaffold(
@@ -83,18 +76,38 @@ class CommitteesScreen extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 24),
-                    GridView.builder(
+                    ListView.separated(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 16,
-                        mainAxisSpacing: 24,
-                        childAspectRatio: 0.7,
-                      ),
-                      itemCount: members.length,
+                      itemCount: committeeMembers.length,
+                      separatorBuilder: (context, index) => const Divider(height: 24, thickness: 0.5),
                       itemBuilder: (context, index) {
-                        return _buildMemberCard(members[index]);
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary.withOpacity(0.1),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(Icons.person, color: AppColors.primary, size: 18),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Text(
+                                  committeeMembers[index],
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF1E293B),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
                       },
                     ),
                   ],
@@ -115,67 +128,37 @@ class CommitteesScreen extends StatelessWidget {
       padding: EdgeInsets.only(
         top: MediaQuery.of(context).padding.top + 10,
         bottom: 20,
-        left: 10,
       ),
-      child: Row(
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () => context.go('/'),
-          ),
-          const SizedBox(width: 10),
-          const Text(
-            'Organizing Committee',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMemberCard(Map<String, String> member) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        AspectRatio(
-          aspectRatio: 1,
-          child: Container(
-            decoration: BoxDecoration(
-              color: const Color(0xFFE2E2E2),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Center(
-              child: Text(
-                member['emoji']!,
-                style: const TextStyle(fontSize: 50),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 15),
+        child: Row(
+          children: [
+            GestureDetector(
+              onTap: () => context.go('/'),
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
               ),
             ),
-          ),
+            const Expanded(
+              child: Text(
+                'Committees',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const SizedBox(width: 40),
+          ],
         ),
-        const SizedBox(height: 12),
-        Text(
-          member['name']!,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 13,
-            color: Colors.black,
-            height: 1.2,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          member['org']!,
-          style: TextStyle(
-            color: Colors.grey.shade500,
-            fontSize: 10,
-            height: 1.2,
-          ),
-        ),
-      ],
+      ),
     );
   }
 }

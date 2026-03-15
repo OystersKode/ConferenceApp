@@ -33,7 +33,7 @@ class _ParticipantsScreenState extends State<ParticipantsScreen> {
               stream: _getParticipantsStream(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(child: CircularProgressIndicator(color: AppColors.primary));
                 }
                 if (snapshot.hasError) {
                   return Center(child: Text('Error: ${snapshot.error}'));
@@ -98,53 +98,91 @@ class _ParticipantsScreenState extends State<ParticipantsScreen> {
   Widget _buildHeader() {
     return Container(
       width: double.infinity,
-      color: const Color(0xFF2E7D32),
       padding: EdgeInsets.only(
         top: MediaQuery.of(context).padding.top + 10,
-        bottom: 20,
+        bottom: 30,
+        left: 20,
+        right: 20,
+      ),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [AppColors.primary, AppColors.secondary],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(40),
+          bottomRight: Radius.circular(40),
+        ),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
-                onPressed: () => context.go('/'),
-              ),
-              const Expanded(
-                child: Text(
-                  'Participants',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+              GestureDetector(
+                onTap: () => context.go('/'),
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.1),
+                    shape: BoxShape.circle,
                   ),
+                  child: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
                 ),
               ),
-              const SizedBox(width: 48),
+              const Text(
+                'Participants',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(width: 40),
             ],
           ),
-          const SizedBox(height: 10),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Container(
-              height: 45,
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: TextField(
-                controller: _searchController,
-                onChanged: (value) => setState(() {}),
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  hintText: 'Search participants...',
-                  hintStyle: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 14),
-                  prefixIcon: Icon(Icons.search, color: Colors.white.withOpacity(0.6)),
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
+          const SizedBox(height: 25),
+          const Text(
+            'IC-SMART 2026',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 32,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Icon(Icons.calendar_today, color: Colors.white.withOpacity(0.7), size: 14),
+              const SizedBox(width: 8),
+              Text(
+                '27th & 28th March, 2026 • Pune, India',
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.9),
+                  fontSize: 14,
                 ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 25),
+          Container(
+            height: 45,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: TextField(
+              controller: _searchController,
+              onChanged: (value) => setState(() {}),
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                hintText: 'Search participants...',
+                hintStyle: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 14),
+                prefixIcon: Icon(Icons.search, color: Colors.white.withOpacity(0.6)),
+                border: InputBorder.none,
+                contentPadding: const EdgeInsets.symmetric(vertical: 10),
               ),
             ),
           ),
@@ -175,10 +213,10 @@ class _ParticipantsScreenState extends State<ParticipantsScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF2E7D32) : Colors.white,
+          color: isSelected ? AppColors.primary : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? const Color(0xFF2E7D32) : Colors.grey.shade300,
+            color: isSelected ? AppColors.primary : Colors.grey.shade300,
           ),
         ),
         child: Text(
@@ -227,7 +265,7 @@ class _ParticipantsScreenState extends State<ParticipantsScreen> {
                   Text(
                     participant.organization,
                     style: const TextStyle(
-                      color: Color(0xFF2E7D32),
+                      color: AppColors.primary,
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
                     ),
@@ -266,23 +304,60 @@ class _ParticipantDetailSheet extends StatelessWidget {
   final UserModel user;
   const _ParticipantDetailSheet({required this.user});
 
-  Future<void> _launchEmail() async {
+  String _encodeQueryParameters(Map<String, String> params) {
+    return params.entries
+        .map((MapEntry<String, String> e) =>
+            '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
+        .join('&');
+  }
+
+  Future<void> _launchEmail(BuildContext context) async {
+    if (user.email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Email address not available.'))
+      );
+      return;
+    }
+
     final Uri emailLaunchUri = Uri(
       scheme: 'mailto',
       path: user.email,
+      query: _encodeQueryParameters(<String, String>{
+        'subject': 'Inquiry regarding IC-SMART 2026',
+      }),
     );
-    if (await canLaunchUrl(emailLaunchUri)) {
-      await launchUrl(emailLaunchUri);
+    
+    try {
+      await launchUrl(emailLaunchUri, mode: LaunchMode.externalApplication);
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not open email application. Please ensure an email app is installed and configured.'))
+        );
+      }
     }
   }
 
-  Future<void> _launchPhone() async {
+  Future<void> _launchPhone(BuildContext context) async {
+    if (user.phone.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Phone number not available.'))
+      );
+      return;
+    }
+
     final Uri phoneLaunchUri = Uri(
       scheme: 'tel',
       path: user.phone,
     );
-    if (await canLaunchUrl(phoneLaunchUri)) {
-      await launchUrl(phoneLaunchUri);
+    try {
+      await launchUrl(phoneLaunchUri, mode: LaunchMode.externalApplication);
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not open dialer.'))
+        );
+      }
     }
   }
 
@@ -314,7 +389,7 @@ class _ParticipantDetailSheet extends StatelessWidget {
             child: Row(
               children: [
                 IconButton(
-                  icon: const Icon(Icons.arrow_back, color: Color(0xFF2E7D32)),
+                  icon: const Icon(Icons.arrow_back, color: AppColors.primary),
                   onPressed: () => Navigator.pop(context),
                 ),
                 Expanded(
@@ -322,7 +397,7 @@ class _ParticipantDetailSheet extends StatelessWidget {
                     user.name,
                     textAlign: TextAlign.center,
                     style: const TextStyle(
-                      color: Color(0xFF2E7D32),
+                      color: AppColors.primary,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
@@ -364,7 +439,7 @@ class _ParticipantDetailSheet extends StatelessWidget {
                         child: Container(
                           padding: const EdgeInsets.all(4),
                           decoration: const BoxDecoration(
-                            color: Color(0xFF2E7D32),
+                            color: AppColors.primary,
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(Icons.check_circle, color: Colors.white, size: 20),
@@ -387,7 +462,7 @@ class _ParticipantDetailSheet extends StatelessWidget {
                     user.organization.toUpperCase(),
                     style: const TextStyle(
                       fontSize: 15,
-                      color: Color(0xFF2E7D32),
+                      color: AppColors.primary,
                       fontWeight: FontWeight.w600,
                       letterSpacing: 0.5,
                     ),
@@ -400,7 +475,7 @@ class _ParticipantDetailSheet extends StatelessWidget {
                       _buildActionButton(
                         icon: Icons.email,
                         label: 'Email',
-                        onTap: _launchEmail,
+                        onTap: () => _launchEmail(context),
                       ),
                       const SizedBox(width: 30),
                       _buildActionButton(
@@ -414,7 +489,7 @@ class _ParticipantDetailSheet extends StatelessWidget {
                           showDialog(
                             context: context, 
                             barrierDismissible: false,
-                            builder: (context) => const Center(child: CircularProgressIndicator())
+                            builder: (context) => const Center(child: CircularProgressIndicator(color: AppColors.primary))
                           );
                           
                           try {
@@ -436,7 +511,7 @@ class _ParticipantDetailSheet extends StatelessWidget {
                       _buildActionButton(
                         icon: Icons.person_add_alt_1,
                         label: 'Contact',
-                        onTap: _launchPhone,
+                        onTap: () => _launchPhone(context),
                       ),
                     ],
                   ),
@@ -502,7 +577,7 @@ class _ParticipantDetailSheet extends StatelessWidget {
               color: const Color(0xFFE8F5E9),
               borderRadius: BorderRadius.circular(18),
             ),
-            child: Icon(icon, color: const Color(0xFF2E7D32), size: 28),
+            child: Icon(icon, color: AppColors.primary, size: 28),
           ),
         ),
         const SizedBox(height: 8),
@@ -539,10 +614,10 @@ class _ParticipantDetailSheet extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: const Color(0xFFF1F8F1),
+              color: const Color(0xFFF1F7F1),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: const Color(0xFF2E7D32), size: 22),
+            child: Icon(icon, color: AppColors.primary, size: 22),
           ),
           const SizedBox(width: 16),
           Expanded(

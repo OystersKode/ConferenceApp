@@ -5,7 +5,7 @@ import '../screens/auth/login_screen.dart';
 import '../screens/auth/signup_screen.dart';
 import '../features/dashboard/dashboard_screen.dart';
 import '../screens/schedule/schedule_screen.dart';
-import '../screens/schedule/session_details_screen.dart'; // Added
+import '../screens/schedule/session_details_screen.dart';
 import '../screens/committees/committees_screen.dart';
 import '../screens/chat/chat_list_screen.dart';
 import '../screens/chat/chat_screen.dart';
@@ -22,9 +22,11 @@ import '../screens/ppt_download/ppt_download_screen.dart';
 import '../screens/admin/admin_approval_screen.dart';
 import '../screens/admin/seeder_screen.dart';
 import '../screens/splash_screen.dart';
-import '../screens/notification/notification_screen.dart'; // Added
+import '../screens/notification/notification_screen.dart';
+import '../screens/event_details/event_details_screen.dart';
+import '../screens/support/app_developer_screen.dart';
 import '../providers/auth_provider.dart';
-import '../models/technical_session_model.dart'; // Added
+import '../models/technical_session_model.dart';
 
 class AppRouter {
   static GoRouter getRouter(AuthProvider authProvider) {
@@ -77,8 +79,8 @@ class AppRouter {
         GoRoute(path: '/admin-seeder', builder: (context, state) => const SeederScreen()),
         GoRoute(path: '/', builder: (context, state) => const DashboardScreen()),
         GoRoute(path: '/schedule', builder: (context, state) => const ScheduleScreen()),
+        GoRoute(path: '/event-details', builder: (context, state) => const EventDetailsScreen()),
         
-        // New Session Details Route
         GoRoute(
           path: '/session-details/:dayId',
           builder: (context, state) {
@@ -104,6 +106,7 @@ class AppRouter {
         GoRoute(path: '/organisers', builder: (context, state) => const OrganisersScreen()),
         GoRoute(path: '/ppt-download', builder: (context, state) => const PPTDownloadScreen()),
         GoRoute(path: '/notifications', builder: (context, state) => const NotificationScreen()),
+        GoRoute(path: '/app-developer', builder: (context, state) => const AppDeveloperScreen()),
       ],
     );
   }

@@ -18,7 +18,7 @@ class DashboardScreen extends StatelessWidget {
       {'title': 'Program Schedule', 'icon': 'assets/FinalIconss/Program_Schedule.jpg', 'route': '/schedule'},
       {'title': 'Speakers', 'icon': 'assets/FinalIconss/Speakers.jpg', 'route': '/speakers'},
       {'title': 'Participants', 'icon': 'assets/FinalIconss/Presenters.jpg', 'route': '/participants'},
-      {'title': 'Associate Sponsers', 'icon': 'assets/FinalIconss/Sponsers.jpg', 'route': '/sponsors'},
+      {'title': 'Associate Partners', 'icon': 'assets/FinalIconss/Sponsers.jpg', 'route': '/sponsors'},
       {'title': 'Organizers', 'icon': 'assets/FinalIconss/Organisers.jpg', 'route': '/organisers'},
       {'title': 'Committees', 'icon': 'assets/FinalIconss/Comitees.jpg', 'route': '/committee'},
       {'title': 'Chat', 'icon': 'assets/FinalIconss/Chat.jpg', 'route': '/chat'},

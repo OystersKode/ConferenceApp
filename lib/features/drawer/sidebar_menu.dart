@@ -101,6 +101,7 @@ class SidebarMenu extends StatelessWidget {
                 _buildMenuItem(context, Icons.chat_bubble_outline, 'Chat with Peers', '/chat'),
                 _buildMenuItem(context, Icons.file_download_outlined, 'PPT Download', '/ppt-download'),
                 _buildMenuItem(context, Icons.support_agent, 'Support', '/support'),
+                _buildMenuItem(context, Icons.developer_mode, 'App Developer', '/app-developer'),
                 const Divider(),
                 _buildMenuItem(context, Icons.logout, 'Logout', null, color: Colors.red, isLogout: true),
               ],
@@ -113,19 +114,35 @@ class SidebarMenu extends StatelessWidget {
             child: Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
-                    color: AppColors.primary,
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(8),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 5,
+                      )
+                    ],
                   ),
-                  child: const Icon(Icons.apps, color: Colors.white, size: 20),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: Image.asset(
+                      'assets/Developer/Oyster.png',
+                      height: 45,
+                      width: 45,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) => 
+                          const Icon(Icons.apps, color: AppColors.primary, size: 20),
+                    ),
+                  ),
                 ),
                 const SizedBox(width: 10),
                 const Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('POWERED BY', style: TextStyle(fontSize: 8, color: Colors.grey)),
-                    Text('TOMS Foundation', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                    Text('OYSTER KODE CLUB', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ],

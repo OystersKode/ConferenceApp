@@ -7,6 +7,7 @@ import '../../models/conversation_model.dart';
 import '../../models/user_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/chat_service.dart';
+import '../../core/constants/app_colors.dart';
 
 class ChatListScreen extends StatelessWidget {
   const ChatListScreen({super.key});
@@ -21,71 +22,108 @@ class ChatListScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF2E7D32),
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => context.go('/'),
-        ),
-        title: const Text(
-          'Chats',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
+      body: Column(
+        children: [
+          _buildHeader(context),
+          Expanded(
+            child: StreamBuilder<List<ConversationModel>>(
+              stream: chatService.getConversations(currentUserId),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Text('Error: ${snapshot.error}\n\nTip: Check if you need to create a Firestore Index.', 
+                      textAlign: TextAlign.center, style: const TextStyle(color: Colors.red)),
+                    ),
+                  );
+                }
+
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+                }
+
+                if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.chat_bubble_outline, size: 80, color: Colors.grey.shade300),
+                        const SizedBox(height: 16),
+                        Text('No conversations yet', style: TextStyle(color: Colors.grey.shade500, fontSize: 16)),
+                      ],
+                    ),
+                  );
+                }
+
+                final conversations = snapshot.data!;
+
+                return ListView.separated(
+                  padding: EdgeInsets.zero,
+                  itemCount: conversations.length,
+                  separatorBuilder: (context, index) => Divider(height: 1, thickness: 0.5, color: Colors.grey.shade100, indent: 85),
+                  itemBuilder: (context, index) {
+                    final conversation = conversations[index];
+                    final otherUserId = conversation.participants.firstWhere((id) => id != currentUserId);
+
+                    return FutureBuilder<DocumentSnapshot>(
+                      future: FirebaseFirestore.instance.collection('users').doc(otherUserId).get(),
+                      builder: (context, userSnapshot) {
+                        if (!userSnapshot.hasData) return const SizedBox();
+                        if (!userSnapshot.data!.exists) return const SizedBox();
+                        
+                        final otherUser = UserModel.fromMap(userSnapshot.data!.data() as Map<String, dynamic>, otherUserId);
+
+                        return _buildChatTile(context, conversation, otherUser);
+                      },
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
       ),
-      body: StreamBuilder<List<ConversationModel>>(
-        stream: chatService.getConversations(currentUserId),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Text('Error: ${snapshot.error}\n\nTip: Check if you need to create a Firestore Index.', 
-                textAlign: TextAlign.center, style: const TextStyle(color: Colors.red)),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      color: AppColors.primary,
+      padding: EdgeInsets.only(
+        top: MediaQuery.of(context).padding.top + 10,
+        bottom: 20,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 15),
+        child: Row(
+          children: [
+            GestureDetector(
+              onTap: () => context.go('/'),
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
               ),
-            );
-          }
-
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator(color: Color(0xFF2E7D32)));
-          }
-
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.chat_bubble_outline, size: 80, color: Colors.grey.shade300),
-                  const SizedBox(height: 16),
-                  Text('No conversations yet', style: TextStyle(color: Colors.grey.shade500, fontSize: 16)),
-                ],
+            ),
+            const Expanded(
+              child: Text(
+                'Chats',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            );
-          }
-
-          final conversations = snapshot.data!;
-
-          return ListView.separated(
-            itemCount: conversations.length,
-            separatorBuilder: (context, index) => Divider(height: 1, thickness: 0.5, color: Colors.grey.shade100, indent: 85),
-            itemBuilder: (context, index) {
-              final conversation = conversations[index];
-              final otherUserId = conversation.participants.firstWhere((id) => id != currentUserId);
-
-              return FutureBuilder<DocumentSnapshot>(
-                future: FirebaseFirestore.instance.collection('users').doc(otherUserId).get(),
-                builder: (context, userSnapshot) {
-                  if (!userSnapshot.hasData) return const SizedBox();
-                  if (!userSnapshot.data!.exists) return const SizedBox();
-                  
-                  final otherUser = UserModel.fromMap(userSnapshot.data!.data() as Map<String, dynamic>, otherUserId);
-
-                  return _buildChatTile(context, conversation, otherUser);
-                },
-              );
-            },
-          );
-        },
+            ),
+            const SizedBox(width: 40),
+          ],
+        ),
       ),
     );
   }

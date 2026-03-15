@@ -55,4 +55,7 @@ flutter:
     - assets/images/organizers/
     - assets/FinalIconss/
     - assets/PartnerLogo/ConferencePartners/
+    - assets/PartnerLogo/AssociationPartners/
+    - assets/PartnerLogo/TechnicalCoPartners/
     - assets/ProgramSchedule/
+    - assets/Developer/

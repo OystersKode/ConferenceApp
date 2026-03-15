@@ -12,59 +12,171 @@ class SpeakersScreen extends StatefulWidget {
 
 class _SpeakersScreenState extends State<SpeakersScreen> {
   final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = "";
 
   final List<Map<String, String>> speakers = [
     {
-      'name': 'Dr. Arpan Kumar',
-      'role': 'PhD Student',
-      'org': 'NICOLAUS COPERNICUS UNIVERSITY',
-      'emoji': '👨‍⚕️',
+      'name': 'Dr. Lung-Jieh Yang',
+      'role': 'Counselor and Director',
+      'org': 'Science and Technology Division, Taipei, TAIWAN',
+      'country': 'TAIWAN',
     },
     {
-      'name': 'Sarah Jenkins',
-      'role': 'Lead Scientist',
-      'org': 'INDIAN INSTITUTE OF TECHNOLOGY',
-      'emoji': '👩‍🔬',
+      'name': 'Prof. Matthew M. Shin',
+      'role': 'President',
+      'org': 'Pacific States University, USA',
+      'country': 'USA',
     },
     {
-      'name': 'Prof. James Wilson',
-      'role': 'Graphene Research Head',
-      'org': 'UNIVERSITY OF MANCHESTER',
-      'emoji': '👨‍🏫',
+      'name': 'Prof. Laurent Chebassier',
+      'role': 'Director International Relations',
+      'org': 'Alvancity School for Technology, Business and Society, FRANCE',
+      'country': 'FRANCE',
     },
     {
-      'name': 'Dr. Elena Rodriguez',
-      'role': 'Materials Associate',
-      'org': 'STANFORD UNIVERSITY',
-      'emoji': '👩‍💼',
+      'name': 'Dr. Hsing-Hao Wu',
+      'role': 'Vice President',
+      'org': 'National University of Kaohsiung, TAIWAN',
+      'country': 'TAIWAN',
     },
     {
-      'name': 'Rohan Gupta',
-      'role': 'Research Scholar',
-      'org': 'IISc BANGALORE',
-      'emoji': '👨‍🎓',
+      'name': 'Dr. Mohd Amiruddin Rahman',
+      'role': 'Deputy Director',
+      'org': 'Universiti Putra, MALAYSIA',
+      'country': 'MALAYSIA',
+    },
+    {
+      'name': 'Prof. Dr. Thomas Himmelsbach',
+      'role': 'Former Professor',
+      'org': 'Federal Institute for Geosciences and Natural Resources (BGR), GERMANY',
+      'country': 'GERMANY',
+    },
+    {
+      'name': 'Alicia Padrós',
+      'role': 'Deputy Director',
+      'org': 'Goethe-Institut, GERMANY',
+      'country': 'GERMANY',
+    },
+    {
+      'name': 'Prof. MAUD LE BARS',
+      'role': 'South Asia Area Manager',
+      'org': 'Omnes Education, FRANCE',
+      'country': 'FRANCE',
+    },
+    {
+      'name': 'Prof. Suraksha Gupta',
+      'role': 'Professor',
+      'org': 'University of the Arts London, UK',
+      'country': 'UK',
+    },
+    {
+      'name': 'Dr. Amod Bhat',
+      'role': 'School for Technology, Business & Society',
+      'org': 'Alvancity, Paris, FRANCE',
+      'country': 'FRANCE',
+    },
+    {
+      'name': 'Dr. Jonas Örtegren',
+      'role': 'Professor',
+      'org': 'Mid Sweden University, SWEDEN',
+      'country': 'SWEDEN',
+    },
+    {
+      'name': 'Hon. Makoto SAITO',
+      'role': 'Japanese Language Education Advisor',
+      'org': 'JAPAN',
+      'country': 'JAPAN',
+    },
+    {
+      'name': 'Dr. Hai Viet LE',
+      'role': 'Faculty of Materials Science and Technology',
+      'org': 'Vietnam National University HCM City (VNU-HCM), VIETNAM',
+      'country': 'VIETNAM',
+    },
+    {
+      'name': 'Dr. Viet Van Pham',
+      'role': 'HUTECH University',
+      'org': 'VIETNAM',
+      'country': 'VIETNAM',
+    },
+    {
+      'name': 'Dr. Manisha Phadatare',
+      'role': 'Professor',
+      'org': 'Mid Sweden University, SWEDEN',
+      'country': 'SWEDEN',
+    },
+    {
+      'name': 'Dr. Sandeep P Patil',
+      'role': 'Institute of General Mechanics',
+      'org': 'RWTH Aachen University, GERMANY',
+      'country': 'GERMANY',
+    },
+    {
+      'name': 'Hon. Ram Kunchur',
+      'role': 'CEO',
+      'org': 'Bionetrik Systems, Bengaluru, INDIA',
+      'country': 'INDIA',
     },
   ];
 
+  List<Map<String, String>> get _filteredSpeakers {
+    if (_searchQuery.isEmpty) return speakers;
+    return speakers.where((speaker) {
+      final name = speaker['name']!.toLowerCase();
+      final country = speaker['country']!.toLowerCase();
+      final query = _searchQuery.toLowerCase();
+      return name.contains(query) || country.contains(query);
+    }).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final filteredList = _filteredSpeakers;
+
     return Scaffold(
       backgroundColor: const Color(0xFFFCFCFC),
       body: Column(
         children: [
           _buildHeader(context),
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-              itemCount: speakers.length,
-              itemBuilder: (context, index) {
-                return _buildSpeakerCard(speakers[index]);
-              },
-            ),
+            child: filteredList.isEmpty 
+              ? _buildNoMatchFound()
+              : ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                  itemCount: filteredList.length,
+                  itemBuilder: (context, index) {
+                    return _buildSpeakerCard(filteredList[index]);
+                  },
+                ),
           ),
         ],
       ),
       bottomNavigationBar: const CustomBottomNavBar(),
+    );
+  }
+
+  Widget _buildNoMatchFound() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.search_off, size: 80, color: Colors.grey.shade300),
+          const SizedBox(height: 16),
+          Text(
+            'No match found',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey.shade500,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Try searching with a different name or country.',
+            style: TextStyle(color: Colors.grey.shade400),
+          ),
+        ],
+      ),
     );
   }
 
@@ -78,27 +190,37 @@ class _SpeakersScreenState extends State<SpeakersScreen> {
       ),
       child: Column(
         children: [
-          Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
-                onPressed: () => context.go('/'),
-              ),
-              const Expanded(
-                child: Text(
-                  'Speakers',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15),
+            child: Row(
+              children: [
+                GestureDetector(
+                  onTap: () => context.go('/'),
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
                   ),
                 ),
-              ),
-              const SizedBox(width: 48), // Balance for back button
-            ],
+                const Expanded(
+                  child: Text(
+                    'Speakers',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 40), // Balance for back button
+              ],
+            ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 15),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Container(
@@ -109,11 +231,21 @@ class _SpeakersScreenState extends State<SpeakersScreen> {
               ),
               child: TextField(
                 controller: _searchController,
+                onChanged: (value) => setState(() => _searchQuery = value),
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
                   hintText: 'Search speakers...',
                   hintStyle: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 14),
                   prefixIcon: Icon(Icons.search, color: Colors.white.withOpacity(0.6)),
+                  suffixIcon: _searchQuery.isNotEmpty 
+                    ? IconButton(
+                        icon: const Icon(Icons.clear, color: Colors.white60, size: 20),
+                        onPressed: () {
+                          _searchController.clear();
+                          setState(() => _searchQuery = "");
+                        },
+                      )
+                    : null,
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.symmetric(vertical: 10),
                 ),
@@ -143,30 +275,28 @@ class _SpeakersScreenState extends State<SpeakersScreen> {
       ),
       child: Row(
         children: [
-          // Speaker Avatar (using emoji as placeholder)
           Container(
             width: 70,
             height: 70,
             decoration: BoxDecoration(
-              color: AppColors.background,
+              color: AppColors.primary.withOpacity(0.1),
               shape: BoxShape.circle,
               border: Border.all(color: AppColors.primary.withOpacity(0.1), width: 2),
             ),
             child: Center(
               child: Text(
-                speaker['emoji']!,
-                style: const TextStyle(fontSize: 35),
+                speaker['name']!.substring(0, 1),
+                style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: AppColors.primary),
               ),
             ),
           ),
           const SizedBox(width: 16),
-          // Speaker Info
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  speaker['org']!,
+                  speaker['country']!.toUpperCase(),
                   style: const TextStyle(
                     color: Color(0xFFEC5B13),
                     fontSize: 9,
@@ -190,6 +320,16 @@ class _SpeakersScreenState extends State<SpeakersScreen> {
                     color: AppColors.secondary,
                     fontWeight: FontWeight.w500,
                   ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  speaker['org']!,
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.grey.shade600,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),

@@ -19,27 +19,53 @@ class ScheduleScreen extends StatefulWidget {
 class _ScheduleScreenState extends State<ScheduleScreen> {
   String? _selectedDayId;
   final FirestoreService _firestoreService = FirestoreService();
-  final Set<String> _expandedEventIds = {};
+  
+  late Stream<List<DayModel>> _daysStream;
+  Stream<List<EventModel>>? _eventsStream;
+  Stream<List<TechnicalSessionModel>>? _sessionsStream;
+  Stream<List<KeynoteModel>>? _keynotesStream;
+
+  @override
+  void initState() {
+    super.initState();
+    _daysStream = _firestoreService.getConferenceDays();
+  }
+
+  void _updateDayStreams(String dayId) {
+    if (_selectedDayId == dayId) return;
+    setState(() {
+      _selectedDayId = dayId;
+      _eventsStream = _firestoreService.getDayEvents(dayId);
+      _sessionsStream = _firestoreService.getDayTechnicalSessions(dayId);
+      _keynotesStream = _firestoreService.getDayKeynotes(dayId);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAF8),
       body: StreamBuilder<List<DayModel>>(
-        stream: _firestoreService.getConferenceDays(),
+        stream: _daysStream,
         builder: (context, daySnapshot) {
           if (daySnapshot.hasError) {
             return Center(child: Text('Error: ${daySnapshot.error}'));
           }
           if (daySnapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator(color: Color(0xFF2E7D32)));
+            return const Center(child: CircularProgressIndicator(color: AppColors.primary));
           }
           if (!daySnapshot.hasData || daySnapshot.data!.isEmpty) {
             return _buildEmptyState('No days found in schedule.');
           }
 
           final days = daySnapshot.data!;
-          _selectedDayId ??= days.first.id;
+          if (_selectedDayId == null) {
+            _selectedDayId = days.first.id;
+            _eventsStream = _firestoreService.getDayEvents(_selectedDayId!);
+            _sessionsStream = _firestoreService.getDayTechnicalSessions(_selectedDayId!);
+            _keynotesStream = _firestoreService.getDayKeynotes(_selectedDayId!);
+          }
+
           final selectedDay = days.firstWhere(
             (d) => d.id == _selectedDayId,
             orElse: () => days.first,
@@ -70,7 +96,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
           const SizedBox(height: 24),
           ElevatedButton(
             onPressed: () => context.push('/admin-seeder'),
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF2E7D32)),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
             child: const Text('Go to Seeder', style: TextStyle(color: Colors.white)),
           ),
         ],
@@ -81,50 +107,79 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   Widget _buildHeader(List<DayModel> days) {
     return Container(
       width: double.infinity,
+      padding: EdgeInsets.only(
+        top: MediaQuery.of(context).padding.top + 10,
+        bottom: 30,
+        left: 20,
+        right: 20,
+      ),
       decoration: const BoxDecoration(
-        color: Color(0xFF2E7D32),
+        gradient: LinearGradient(
+          colors: [AppColors.primary, AppColors.secondary],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(40),
           bottomRight: Radius.circular(40),
         ),
       ),
-      child: SafeArea(
-        bottom: false,
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.menu, color: Colors.white70),
-                    onPressed: () {},
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              GestureDetector(
+                onTap: () => context.go('/'),
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.1),
+                    shape: BoxShape.circle,
                   ),
-                  const Text(
-                    'SCHEDULE',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1.5,
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.search, color: Colors.white70),
-                    onPressed: () {},
-                  ),
-                ],
+                  child: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 10, 20, 30),
-              child: Row(
-                children: days.map((day) => _buildDateTab(day)).toList(),
+              const Text(
+                'Program Schedule',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
+              const SizedBox(width: 40),
+            ],
+          ),
+          const SizedBox(height: 25),
+          const Text(
+            'IC-SMART 2026',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 32,
+              fontWeight: FontWeight.w900,
             ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Icon(Icons.calendar_today, color: Colors.white.withOpacity(0.7), size: 14),
+              const SizedBox(width: 8),
+              Text(
+                '27th & 28th March, 2026 • Pune, India',
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.9),
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 25),
+          Row(
+            children: days.map((day) => _buildDateTab(day)).toList(),
+          ),
+        ],
       ),
     );
   }
@@ -137,10 +192,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
 
     return Expanded(
       child: GestureDetector(
-        onTap: () => setState(() {
-          _selectedDayId = day.id;
-          _expandedEventIds.clear();
-        }),
+        onTap: () => _updateDayStreams(day.id),
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 8),
           padding: const EdgeInsets.symmetric(vertical: 12),
@@ -162,7 +214,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               Text(
                 dayNum,
                 style: TextStyle(
-                  color: isSelected ? const Color(0xFF2E7D32) : Colors.white,
+                  color: isSelected ? AppColors.primary : Colors.white,
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
                 ),
@@ -176,24 +228,21 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
 
   Widget _buildDayContent(DayModel day) {
     return StreamBuilder<List<EventModel>>(
-      stream: _firestoreService.getDayEvents(day.id),
+      stream: _eventsStream,
       builder: (context, eventSnapshot) {
-        if (eventSnapshot.hasError) {
-          return Center(child: Text('Events Error: ${eventSnapshot.error}'));
-        }
         if (eventSnapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator(color: AppColors.primary));
         }
         
         final events = eventSnapshot.data ?? [];
 
         return StreamBuilder<List<TechnicalSessionModel>>(
-          stream: _firestoreService.getDayTechnicalSessions(day.id),
+          stream: _sessionsStream,
           builder: (context, sessionSnapshot) {
             final sessions = sessionSnapshot.data ?? [];
 
             return StreamBuilder<List<KeynoteModel>>(
-              stream: _firestoreService.getDayKeynotes(day.id),
+              stream: _keynotesStream,
               builder: (context, keynoteSnapshot) {
                 final keynotes = keynoteSnapshot.data ?? [];
 
@@ -201,17 +250,23 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   return const Center(child: Text('No events scheduled for this day.'));
                 }
 
-                return ListView(
+                return ListView.builder(
                   padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
-                  children: [
-                    ...events.map((event) => _buildTimelineItem(event, day)).toList(),
-                    if (sessions.isNotEmpty) ...[
-                      const SizedBox(height: 30),
-                      _buildFeaturedTracksHeader(),
-                      const SizedBox(height: 15),
-                      _buildFeaturedTracksList(sessions, keynotes, day.id),
-                    ],
-                  ],
+                  itemCount: events.length + (sessions.isNotEmpty ? 1 : 0),
+                  itemBuilder: (context, index) {
+                    if (index < events.length) {
+                      return _buildTimelineItem(events[index], day);
+                    } else {
+                      return Column(
+                        children: [
+                          const SizedBox(height: 30),
+                          _buildFeaturedTracksHeader(),
+                          const SizedBox(height: 15),
+                          _buildFeaturedTracksList(sessions, keynotes, day.id),
+                        ],
+                      );
+                    }
+                  },
                 );
               },
             );
@@ -222,7 +277,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   }
 
   Widget _buildTimelineItem(EventModel event, DayModel day) {
-    bool isExpanded = _expandedEventIds.contains(event.id);
     bool ongoing = _isOngoing(event.startTime, event.endTime, day.date);
 
     switch (event.type) {
@@ -230,7 +284,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
         return _buildRegistrationCard(event, ongoing);
       case 'plenary':
       case 'keynote':
-        return _buildPlenaryCard(event, isExpanded);
+        return _buildPlenaryCard(event);
       case 'technical_session':
         return _buildTechnicalSessionSummary(event);
       case 'break':
@@ -245,6 +299,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
 
   Widget _buildRegistrationCard(EventModel event, bool ongoing) {
     return Container(
+      key: ValueKey('reg_${event.id}'),
       margin: const EdgeInsets.only(bottom: 20),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -275,51 +330,40 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     );
   }
 
-  Widget _buildPlenaryCard(EventModel event, bool isExpanded) {
-    Color themeColor = const Color(0xFF2E7D32);
-
-    return GestureDetector(
-      onTap: () => setState(() {
-        if (isExpanded) {
-          _expandedEventIds.remove(event.id);
-        } else {
-          _expandedEventIds.add(event.id);
-        }
-      }),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 20),
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(25),
-          border: Border.all(color: themeColor.withOpacity(0.3), width: 1.5),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  event.type.toUpperCase().replaceAll('_', ' '),
-                  style: TextStyle(
-                    color: themeColor,
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1,
-                  ),
-                ),
-                Icon(isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, color: themeColor, size: 24),
-              ],
+  Widget _buildPlenaryCard(EventModel event) {
+    return Container(
+      key: ValueKey('plenary_${event.id}'),
+      margin: const EdgeInsets.only(bottom: 20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(25),
+        border: Border.all(color: AppColors.primary.withOpacity(0.3), width: 1.5),
+      ),
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          key: PageStorageKey(event.id),
+          tilePadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          title: Text(
+            event.type.toUpperCase().replaceAll('_', ' '),
+            style: const TextStyle(
+              color: AppColors.primary,
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1,
             ),
-            const SizedBox(height: 10),
-            Text(
+          ),
+          subtitle: Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Text(
               event.title,
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Color(0xFF004D40), height: 1.2),
             ),
-            if (isExpanded) ...[
-              const SizedBox(height: 20),
-              Container(
+          ),
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+              child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF1F8F1),
@@ -330,8 +374,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                     Row(
                       children: [
                         CircleAvatar(
-                          backgroundColor: themeColor.withOpacity(0.1),
-                          child: Icon(Icons.person, color: themeColor),
+                          backgroundColor: AppColors.primary.withOpacity(0.1),
+                          child: const Icon(Icons.person, color: AppColors.primary),
                         ),
                         const SizedBox(width: 15),
                         Expanded(
@@ -362,7 +406,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   ],
                 ),
               ),
-            ],
+            ),
           ],
         ),
       ),
@@ -371,6 +415,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
 
   Widget _buildTechnicalSessionSummary(EventModel event) {
     return Container(
+      key: ValueKey('tech_${event.id}'),
       margin: const EdgeInsets.only(bottom: 20),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
       decoration: BoxDecoration(
@@ -403,6 +448,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
 
   Widget _buildSimpleEventCard(EventModel event, IconData iconData, Color iconColor) {
     return Container(
+      key: ValueKey('simple_${event.id}'),
       margin: const EdgeInsets.only(bottom: 20),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -441,7 +487,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       child: const Text(
         'ONGOING',
         style: TextStyle(
-          color: Color(0xFF2E7D32),
+          color: AppColors.primary,
           fontSize: 9,
           fontWeight: FontWeight.w900,
           letterSpacing: 0.5,
@@ -460,7 +506,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
         ),
         TextButton(
           onPressed: () {},
-          child: const Text('View All', style: TextStyle(color: Color(0xFF2E7D32), fontWeight: FontWeight.bold)),
+          child: const Text('View All', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
         ),
       ],
     );
@@ -565,7 +611,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   }
 
   bool _isOngoing(String startTime, String endTime, String dayDate) {
-    // Demo logic to match the screenshot: Mark '08:45' on March 27 as ongoing
     return startTime == '08:45' && dayDate.contains('03-27');
   }
 }
