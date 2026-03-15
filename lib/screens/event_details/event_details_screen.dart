@@ -84,7 +84,7 @@ class EventDetailsScreen extends StatelessWidget {
                                 Icon(Icons.calendar_today, color: Colors.white.withOpacity(0.7), size: 14),
                                 const SizedBox(width: 8),
                                 Text(
-                                  '27th & 28th March, 2026 • Pune, India',
+                                  '27th & 28th March, 2026 • Sangli, India',
                                   style: TextStyle(
                                     color: Colors.white.withOpacity(0.9),
                                     fontSize: 14,

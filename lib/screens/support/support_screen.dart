@@ -7,13 +7,13 @@ import '../../widgets/bottom_navbar.dart';
 class SupportScreen extends StatelessWidget {
   const SupportScreen({super.key});
 
-  Future<void> _makeCall(String phoneNumber) async {
-    final Uri launchUri = Uri(
-      scheme: 'tel',
-      path: phoneNumber,
+  Future<void> _launchEmail(String email) async {
+    final Uri emailLaunchUri = Uri(
+      scheme: 'mailto',
+      path: email,
     );
-    if (await canLaunchUrl(launchUri)) {
-      await launchUrl(launchUri);
+    if (await canLaunchUrl(emailLaunchUri)) {
+      await launchUrl(emailLaunchUri);
     }
   }
 
@@ -28,43 +28,24 @@ class SupportScreen extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
               children: [
-                _buildSectionHeader('LOCAL TRANSPORT'),
+                _buildSectionHeader('CONFERENCE SUPPORT'),
                 const SizedBox(height: 15),
-                _buildContactCard(
-                  name: 'Remya',
-                  phone: '+91 98765 43210',
-                  email: 'remya@graphene.in',
-                  avatar: '👩',
-                  isOnline: true,
-                  onCall: () => _makeCall('+919876543210'),
+                _buildSupportCard(
+                  name: 'Prof. Dr. V. H. Kalmani',
+                  email: 'vijay.kalmani@ritindia.edu',
+                  role: 'Organizing Chair',
+                  icon: Icons.person_outline,
+                  onTap: () => _launchEmail('vijay.kalmani@ritindia.edu'),
                 ),
-                const SizedBox(height: 12),
-                _buildContactCard(
-                  name: 'Travel Swish',
-                  phone: '+91 91234 56789',
-                  email: 'travel@swish.in',
-                  icon: Icons.directions_car,
-                  onCall: () => _makeCall('+919123456789'),
-                ),
-                const SizedBox(height: 25),
-                _buildSectionHeader('EMERGENCY SERVICES'),
+                const SizedBox(height: 20),
+                _buildSectionHeader('TECHNICAL SUPPORT'),
                 const SizedBox(height: 15),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildSquareServiceCard(
-                        title: 'Medical Support',
-                        icon: Icons.medical_services_outlined,
-                      ),
-                    ),
-                    const SizedBox(width: 15),
-                    Expanded(
-                      child: _buildSquareServiceCard(
-                        title: 'On-site Security',
-                        icon: Icons.shield_outlined,
-                      ),
-                    ),
-                  ],
+                _buildSupportCard(
+                  name: 'Oyster Kode Club',
+                  email: 'oysterkode@ritindia.edu',
+                  role: 'App Development Team',
+                  icon: Icons.code,
+                  onTap: () => _launchEmail('oysterkode@ritindia.edu'),
                 ),
                 const SizedBox(height: 100),
               ],
@@ -142,142 +123,74 @@ class SupportScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildContactCard({
+  Widget _buildSupportCard({
     required String name,
-    required String phone,
     required String email,
-    String? avatar,
-    IconData? icon,
-    bool isOnline = false,
-    required VoidCallback onCall,
+    required String role,
+    required IconData icon,
+    required VoidCallback onTap,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(25),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Stack(
-            children: [
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  color: icon != null ? AppColors.primary : const Color(0xFFF0F0F0),
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: avatar != null
-                      ? Text(avatar, style: const TextStyle(fontSize: 30))
-                      : Icon(icon, color: Colors.white, size: 30),
-                ),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(25),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(15),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withOpacity(0.1),
+                shape: BoxShape.circle,
               ),
-              if (isOnline)
-                Positioned(
-                  right: 2,
-                  bottom: 2,
-                  child: Container(
-                    width: 12,
-                    height: 12,
-                    decoration: BoxDecoration(
-                      color: Colors.green,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2),
+              child: Icon(icon, color: AppColors.primary, size: 30),
+            ),
+            const SizedBox(width: 20),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 17,
+                      color: Color(0xFF1A1A1A),
                     ),
                   ),
-                ),
-            ],
-          ),
-          const SizedBox(width: 15),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: Color(0xFF1A1A1A),
+                  const SizedBox(height: 4),
+                  Text(
+                    role,
+                    style: TextStyle(
+                      color: Colors.grey.shade600,
+                      fontSize: 13,
+                    ),
                   ),
-                ),
-                Text(
-                  phone,
-                  style: TextStyle(
-                    color: Colors.grey.shade600,
-                    fontSize: 13,
+                  const SizedBox(height: 8),
+                  Text(
+                    email,
+                    style: const TextStyle(
+                      color: AppColors.secondary,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-                Text(
-                  email,
-                  style: const TextStyle(
-                    color: AppColors.secondary,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          GestureDetector(
-            onTap: onCall,
-            child: Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF0F9F4),
-                borderRadius: BorderRadius.circular(15),
+                ],
               ),
-              child: const Icon(Icons.phone, color: AppColors.primary, size: 20),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSquareServiceCard({required String title, required IconData icon}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 30),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(25),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(15),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF0F9F4),
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: Icon(icon, color: AppColors.primary, size: 30),
-          ),
-          const SizedBox(height: 15),
-          Text(
-            title,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-              color: Color(0xFF1A1A1A),
-            ),
-          ),
-        ],
+            const Icon(Icons.email_outlined, color: Colors.grey, size: 20),
+          ],
+        ),
       ),
     );
   }

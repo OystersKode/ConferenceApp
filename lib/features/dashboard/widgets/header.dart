@@ -65,10 +65,7 @@ class DashboardHeader extends StatelessWidget {
                           letterSpacing: 1.1,
                         ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.search, color: Colors.white, size: 28),
-                        onPressed: () {},
-                      ),
+                      const SizedBox(width: 48), // Placeholder to keep the title centered
                     ],
                   ),
                 ),

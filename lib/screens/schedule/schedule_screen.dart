@@ -167,7 +167,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               Icon(Icons.calendar_today, color: Colors.white.withOpacity(0.7), size: 14),
               const SizedBox(width: 8),
               Text(
-                '27th & 28th March, 2026 • Pune, India',
+                '27th & 28th March, 2026 • Sangli, India',
                 style: TextStyle(
                   color: Colors.white.withOpacity(0.9),
                   fontSize: 14,
@@ -498,14 +498,10 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   Widget _buildFeaturedTracksHeader() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const Text(
+      children: const [
+        Text(
           'Featured Tracks',
           style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Color(0xFF1A1A1A)),
-        ),
-        TextButton(
-          onPressed: () {},
-          child: const Text('View All', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
         ),
       ],
     );
