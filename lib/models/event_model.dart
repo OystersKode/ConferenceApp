@@ -7,7 +7,7 @@ class EventModel {
   final String startTime;
   final String endTime;
   final String venue;
-  final int displayOrder;
+  final num displayOrder; // Changed to num to handle both int and double
   
   // Plenary/Keynote specific fields
   final String? speaker;

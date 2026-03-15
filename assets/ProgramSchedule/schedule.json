@@ -1,0 +1,394 @@
+{
+  "conference": {
+    "name": "International Conference on Sustainable Management and Advanced Research Technologies",
+    "shortName": "IC-SMART 2026",
+    "year": 2026,
+    "startDate": "2026-03-27",
+    "endDate": "2026-03-28",
+    "location": "CSE Department",
+    "city": "Pune",
+    "country": "India"
+  },
+  "days": [
+    {
+      "id": "day-1",
+      "title": "Day I",
+      "date": "2026-03-27",
+      "dayNumber": 1,
+      "events": [
+        { "title": "Registration", "type": "registration", "startTime": "08:45", "endTime": "09:45", "venue": "CSE Main Bldg", "displayOrder": 1 },
+        { "title": "Inaugural Function (Open Ceremony)", "type": "ceremony", "startTime": "09:45", "endTime": "11:00", "venue": "CSE Conference Hall", "displayOrder": 2 },
+        { "title": "High Tea Break", "type": "break", "startTime": "11:00", "endTime": "11:10", "venue": "", "displayOrder": 3 },
+        { "title": "Plenary Talk 01", "type": "plenary", "startTime": "11:10", "endTime": "11:30", "venue": "CSE Conference Hall", "speaker": "Dr. Anil Kumar", "chair": "Dr. S. K. Patil", "moderator": "Dr. Y. J. Kulkarni", "displayOrder": 4 },
+        { "title": "Plenary Talk 02", "type": "plenary", "startTime": "11:30", "endTime": "11:50", "venue": "CSE Conference Hall", "speaker": "Prof. Laurent Chebassier", "chair": "Dr. S. K. Patil", "moderator": "Dr. Y. J. Kulkarni", "displayOrder": 5 },
+        { "title": "Plenary Talk 03", "type": "plenary", "startTime": "11:50", "endTime": "12:10", "venue": "CSE Conference Hall", "speaker": "Prof. Matthew M. Shin", "chair": "Dr. A. B. Kakade", "moderator": "Dr. Y. J. Kulkarni", "displayOrder": 6 },
+        { "title": "Panel Discussion", "type": "panel", "startTime": "12:10", "endTime": "12:50", "venue": "CSE Conference Hall", "panelists": ["Mr. Kalyan Ram", "Dr. Venugopal", "Dr. Rituparna Datta", "Dr. Aditya Abhyanka", "Mr. Vivek Kulkarni"], "chair": "Dr. S. D. Patil", "moderator": "Dr. Y. J. Kulkarni", "displayOrder": 7 },
+        { "title": "Plenary Talk 04", "type": "plenary", "startTime": "12:50", "endTime": "13:10", "venue": "CSE Conference Hall", "speaker": "Dr. Lung-Jieh Yang", "chair": "Dr. A. B. Kakade", "moderator": "Dr. Y. J. Kulkarni", "displayOrder": 8 },
+        { "title": "Plenary Talk 05", "type": "plenary", "startTime": "13:10", "endTime": "13:30", "venue": "CSE Conference Hall", "speaker": "Prof. Dr. Thomas Himmelsbach", "chair": "Prof. D. S. Patil", "moderator": "Dr. Y. J. Kulkarni", "displayOrder": 9 },
+        { "title": "Lunch", "type": "lunch", "startTime": "13:30", "endTime": "14:30", "venue": "Near Mechatronics Department", "displayOrder": 10 },
+        { "title": "Plenary Talk 06", "type": "plenary", "startTime": "14:30", "endTime": "14:50", "venue": "CSE Conference Hall", "speaker": "Prof. MAUD LE BARS", "chair": "Dr. L. M. Jugulkar", "moderator": "Dr. Y. J. Kulkarni", "displayOrder": 11 },
+        { "title": "Tea Break", "type": "break", "startTime": "16:10", "endTime": "16:20", "venue": "", "displayOrder": 12 },
+        { "title": "Cultural Programme", "type": "cultural", "startTime": "19:00", "endTime": "20:00", "venue": "", "displayOrder": 13 }
+      ],
+      "keynotes": [
+        { "speaker": "Prof. Dr. Mohd Amiruddin Abd Rahman", "title": "Keynote Speaker", "startTime": "14:50", "endTime": "15:10", "sessionNumber": 1 },
+        { "speaker": "Dr. Viet Van Pham", "title": "Keynote Speaker", "startTime": "14:50", "endTime": "15:10", "sessionNumber": 2 },
+        { "speaker": "Dr. Hai Viet LE", "title": "Keynote Speaker", "startTime": "14:50", "endTime": "15:10", "sessionNumber": 3 },
+        { "speaker": "Prof. Suraksha Gupta", "title": "Keynote Speaker", "startTime": "14:50", "endTime": "15:10", "sessionNumber": 4 },
+        { "speaker": "TBD", "title": "Keynote Speaker", "startTime": "14:50", "endTime": "15:10", "sessionNumber": 5 },
+        { "speaker": "TBD", "title": "Keynote Speaker", "startTime": "14:50", "endTime": "15:10", "sessionNumber": 6 },
+        { "speaker": "TBD", "title": "Keynote Speaker", "startTime": "14:50", "endTime": "15:10", "sessionNumber": 7 },
+        { "speaker": "TBD", "title": "Keynote Speaker", "startTime": "14:50", "endTime": "15:10", "sessionNumber": 8 }
+      ],
+      "technical_sessions": [
+        {
+          "id": "session-1",
+          "title": "Civil Engineering, Materials & Mechanical Systems",
+          "sessionNumber": 1,
+          "mode": "offline",
+          "startTime": "15:10",
+          "endTime": "17:00",
+          "venue": "Location of Building",
+          "chairs": ["Dr. P. D. Kumbhar"],
+          "displayOrder": 1,
+          "papers": [
+            { "order": 1, "title": "Efficacy of Geopolymer Concrete in Flexural Members Reinforced with Steel Fibres", "presenterName": "", "presenterId": "" },
+            { "order": 2, "title": "Micro-Concrete for Sustainable Infrastructure Repair: Technological Progress, Applications, Research Advances and Challenges - A Review" },
+            { "order": 3, "title": "Analysis of Heat Transfer Rate of Refrigeration Discharge Coil" },
+            { "order": 4, "title": "Finite Element Analysis and Computation of Rayleigh's Damping Coefficients of FRC Machining Fixture" },
+            { "order": 5, "title": "Influence of SLM Process Parameters on Density and Hardness of Ti-6Al-4V Using Experimental and Statistical Approaches" },
+            { "order": 6, "title": "Review on Magnetorheological Fluids and their Automotive Applications" },
+            { "order": 7, "title": "A Review of Nanosilica Impact on Concrete's Characteristics" }
+          ]
+        },
+        {
+          "id": "session-2",
+          "title": "Sustainable Energy Systems & Power Electronics",
+          "sessionNumber": 2,
+          "mode": "offline",
+          "startTime": "15:10",
+          "endTime": "17:00",
+          "venue": "Location of Building",
+          "chairs": ["Dr. Vaiju Kalkhambkar"],
+          "displayOrder": 2,
+          "papers": [
+            { "order": 1, "title": "Hybrid Solar PV-Powered EV Charging Station with Energy Storage System" },
+            { "order": 2, "title": "Design and Implementation of a Solar-Powered Three Phase Multi Level Inverter" },
+            { "order": 3, "title": "SoC Estimation Using an Extended Kalman Filter Integrated with an Enhanced Path Finder Optimization Algorithm" },
+            { "order": 4, "title": "Discrete-Time Analysis of Nonlinear Dynamics in Buck Converters Feeding CPL Bifurcation" },
+            { "order": 5, "title": "Design of Miniaturized Metamaterial Antenna using Slot Loaded Circular Patch with CSRR for WLAN" },
+            { "order": 6, "title": "A Comparative Review of Reduced Switch Multilevel Inverter for Grid Connected PV Systems" },
+            { "order": 7, "title": "Amorphous Silicon p-i-n Cells Above 6% Efficiency Without Diborane: Materials, Doping Alternatives, and Device Design" }
+          ]
+        },
+        {
+          "id": "session-3",
+          "title": "AI in Healthcare, Biomedical & Clinical Applications",
+          "sessionNumber": 3,
+          "mode": "offline",
+          "startTime": "15:10",
+          "endTime": "17:00",
+          "venue": "Location of Building",
+          "chairs": ["Dr. V. R. Ghorpade", "Dr. S. S. Patil"],
+          "displayOrder": 3,
+          "papers": [
+            { "order": 1, "title": "Adaptive Meta-Learning Framework for Robust and Cross-Domain Skin Lesion Classification" },
+            { "order": 2, "title": "Deep Learning-Based Automated Nail Disorder Classification" },
+            { "order": 3, "title": "Brain Tumor Detection Using a Hybrid Deep Learning Architecture" },
+            { "order": 4, "title": "From Algorithms to Clinic: Analytical Insights into Machine Learning and Deep Learning Frameworks for Breast Cancer Detection" },
+            { "order": 5, "title": "A Classification Framework for Large Language Models (LLM)-Generated Counseling Responses" },
+            { "order": 6, "title": "Review on Functionally Graded Polymer Reinforced Composite Material Exposed to High Temperature" },
+            { "order": 7, "title": "A Machine Learning-Enabled Decision-Support System for Equipment Loss Risk Assessment and Mitigation in High-Intensity Conflict Zones" }
+          ]
+        },
+        {
+          "id": "session-4",
+          "title": "AI in Healthcare, Mental Health & Biomedical",
+          "sessionNumber": 4,
+          "mode": "online",
+          "startTime": "15:10",
+          "endTime": "17:00",
+          "venue": "Location of Building",
+          "chairs": ["Prof. Dr. Bindu Garg", "Dr. S. S. Patil"],
+          "displayOrder": 4,
+          "papers": [
+            { "order": 1, "title": "An Intelligent System for Early Heart Failure Risk Prediction" },
+            { "order": 2, "title": "State of the Art Multimodal Fusion Techniques for Mental Health Detection" },
+            { "order": 3, "title": "Enhancing Text-Based Mental Health Monitoring: Leveraging Relevant Emotional Features and Cultural Adaptation in Sentiment Analysis with Machine Learning" },
+            { "order": 4, "title": "An Iterative and Metric-Driven Review of Lung Cancer Detection Models: Architectural Evolution, Numerical Benchmarking, and Clinical Readiness Across Multi-Modal Imaging Scenarios" },
+            { "order": 5, "title": "Advancing Urologic Robotic Oncologic Surgery Through Artificial Intelligence" },
+            { "order": 6, "title": "EmotiTrack: Automated Emotion Mapping and Mental Health Trend Detection" },
+            { "order": 7, "title": "Deep Learning for Developing Assistive Technologies, such as Prosthetic Limbs and Exoskeletons" }
+          ]
+        },
+        {
+          "id": "session-5",
+          "title": "Cybersecurity, Fraud Detection & Blockchain",
+          "sessionNumber": 5,
+          "mode": "online",
+          "startTime": "15:10",
+          "endTime": "17:00",
+          "venue": "Location of Building",
+          "chairs": ["Dr. Deepika Dhamija", "Dr. Kiran Tangod"],
+          "displayOrder": 5,
+          "papers": [
+            { "order": 1, "title": "Visualizing IoT Network Flows: Image-Based Deep Learning vs. Statistical Models for Intrusion Detection" },
+            { "order": 2, "title": "Why High Accuracy Is Not Enough: Cross-Dataset Evaluation and Adaptive Reconfiguration for Robust Machine Learning-Based Intrusion Detection Systems" },
+            { "order": 3, "title": "A Survey on Automation of Criminal Record Management and FIR Filing using AI, Blockchain and Chatbots" },
+            { "order": 4, "title": "Detecting Textured Contact Lens Spoofing Attacks for Biometric Authentication" },
+            { "order": 5, "title": "Deepfake Video, Audio and Image Detection" },
+            { "order": 6, "title": "Viyom - A Transparent Blockchain-based Donation & Fund Allocation Platform" },
+            { "order": 7, "title": "Stability-Driven Feature Selection for Credit Card Fraud Detection under Temporal Distribution Shift" }
+          ]
+        },
+        {
+          "id": "session-6",
+          "title": "NLP, Language Technologies & Multimodal AI",
+          "sessionNumber": 6,
+          "mode": "online",
+          "startTime": "15:10",
+          "endTime": "17:00",
+          "venue": "Location of Building",
+          "chairs": ["Dr. Neha Bhatia", "Dr. V. K. Shende"],
+          "displayOrder": 6,
+          "papers": [
+            { "order": 1, "title": "A Comparative Analysis of Unimodal and Multimodal Transformers for Hindi Speech Emotion Recognition" },
+            { "order": 2, "title": "Multimodal Speech Fluency and Quality Analysis Using Audio-Text Learning" },
+            { "order": 3, "title": "A Comprehensive Overview of Transformer-based Neural Architectures: Models, Design and Comparative Study" },
+            { "order": 4, "title": "ChatGPT Era: Evolution, Uses, Needs, Objectives, Comparative Models & Detailed Analysis" },
+            { "order": 5, "title": "AI-Powered Multilingual Dubbing & Voice Cloning" },
+            { "order": 6, "title": "FontNet-K: Word-Level Kannada Font Classification Using CNNs" },
+            { "order": 7, "title": "Sentiment Analysis of Instagram Images and Captions" }
+          ]
+        },
+        {
+          "id": "session-7",
+          "title": "AI for Agriculture, Environment & Smart Systems",
+          "sessionNumber": 7,
+          "mode": "online",
+          "startTime": "15:10",
+          "endTime": "17:00",
+          "venue": "Location of Building",
+          "chairs": ["Dr. Manjula Shanbhog", "Dr. Amit Patil"],
+          "displayOrder": 7,
+          "papers": [
+            { "order": 1, "title": "Engineering Informatics-driven Framework for IoT-AI Integration in Dry Chilli Value Chain: A Hybrid Approach for Real-time Quality Grading and Predictive Market Modeling" },
+            { "order": 2, "title": "AI-Driven Rice Yield Prediction with Circular Economy Insights on Crop Residue Utilization" },
+            { "order": 3, "title": "An AI Driven Framework For Nutrient Deficiency Detection And Personalized Diet Recommendation" },
+            { "order": 4, "title": "Modernizing Waste Water Management Systems with Machine Learning: A Comprehensive Review" },
+            { "order": 5, "title": "Technological Approaches for Vehicular Emission Monitoring and their Implications in Air Pollution Control" },
+            { "order": 6, "title": "Smart Agriculture Cybersecurity: An ML-Enabled Threat Detection Framework" },
+            { "order": 7, "title": "A Permissioned Blockchain-Based AI Framework for Sustainable Smart Farming Using Hyperledger Fabric" }
+          ]
+        },
+        {
+          "id": "session-8",
+          "title": "IoT, Assistive Technology & Autonomous Systems",
+          "sessionNumber": 8,
+          "mode": "online",
+          "startTime": "15:10",
+          "endTime": "17:00",
+          "venue": "Location of Building",
+          "chairs": ["Dr. Tejinder Kaur", "Dr. A. R. Thorat"],
+          "displayOrder": 8,
+          "papers": [
+            { "order": 1, "title": "A Low-Cost, Energy-Efficient Gesture Recognition System Using EMG Signals, ESP32, and TinyML for Wearable Interfaces" },
+            { "order": 2, "title": "AI-Driven Sign Language Interpretation and Translation System: A Robust and Affordable Vision-Based Approach" },
+            { "order": 3, "title": "Hybrid AI-Powered Navigation and Voice-Based Q&A Assistant for the Visually Impaired" },
+            { "order": 4, "title": "An Energy-Efficient Real-Time Multi-Sensor IoT Framework for Early Landslide Detection in Remote Regions" },
+            { "order": 5, "title": "Trends, Challenges and Future Scope of PLC-Based Automation with AI and ML Integration" },
+            { "order": 6, "title": "3D Printing Application in Design and Manufacturing of Prosthesis" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "day-2",
+      "title": "Day II",
+      "date": "2026-03-28",
+      "dayNumber": 2,
+      "events": [
+        { "title": "Registration", "type": "registration", "startTime": "08:00", "endTime": "09:00", "venue": "", "displayOrder": 1 },
+        { "title": "Technical Tour", "type": "tour", "startTime": "09:00", "endTime": "17:00", "venue": "", "displayOrder": 2 },
+        { "title": "Plenary Talk 07", "type": "plenary", "startTime": "10:00", "endTime": "10:20", "venue": "CSE Conference Hall", "speaker": "Dr. Hsing-Hao Wu", "chair": "Dr. M. S. Patil", "moderator": "Dr. Y. J. Kulkarni", "displayOrder": 3 },
+        { "title": "Plenary Talk 08", "type": "plenary", "startTime": "10:20", "endTime": "10:40", "venue": "CSE Conference Hall", "speaker": "Dr. Amod Bhat", "chair": "Dr. M. S. Patil", "moderator": "Dr. Y. J. Kulkarni", "displayOrder": 4 },
+        { "title": "Plenary Talk 09", "type": "plenary", "startTime": "10:40", "endTime": "11:00", "venue": "CSE Conference Hall", "speaker": "Ram Kunchur", "chair": "Dr. S. S. Patil", "moderator": "Dr. Y. J. Kulkarni", "displayOrder": 5 },
+        { "title": "Tea Break", "type": "break", "startTime": "11:00", "endTime": "11:10", "venue": "", "displayOrder": 6 },
+        { "title": "Plenary Talk 10", "type": "plenary", "startTime": "11:10", "endTime": "11:30", "venue": "CSE Conference Hall", "speaker": "Dr. Sandeep P Patil", "chair": "Dr. S. S. Patil", "moderator": "Dr. Y. J. Kulkarni", "displayOrder": 7 },
+        { "title": "Plenary Talk 11", "type": "plenary", "startTime": "11:30", "endTime": "11:50", "venue": "CSE Conference Hall", "speaker": "Makoto SAITO", "chair": "Dr. K. S. Patil", "moderator": "Dr. Y. J. Kulkarni", "displayOrder": 8 },
+        { "title": "Plenary Speaker", "type": "plenary", "startTime": "11:50", "endTime": "12:20", "venue": "CSE Conference Hall", "speaker": "", "chair": "Dr. Mrs. S. S. Desai", "moderator": "Dr. Y. J. Kulkarni", "displayOrder": 9 },
+        { "title": "Panel Discussion", "type": "panel", "startTime": "12:20", "endTime": "13:00", "venue": "CSE Conference Hall", "panelists": ["Abasaheb Kale", "Kasturi Patil", "Amar Kalvikatte", "Santosh Deshpande", "ABHAY SALVI"], "chair": "Prof. M. M. Mirza", "moderator": "Dr. Y. J. Kulkarni", "displayOrder": 10 },
+        { "title": "Lunch", "type": "lunch", "startTime": "13:00", "endTime": "14:00", "venue": "Venue", "displayOrder": 11 },
+        { "title": "Tea Break", "type": "break", "startTime": "16:00", "endTime": "16:10", "venue": "", "displayOrder": 12 },
+        { "title": "Valedictory Function", "type": "valedictory", "startTime": "16:10", "endTime": "16:50", "venue": "", "displayOrder": 13 }
+      ],
+      "keynotes": [
+        { "speaker": "Dr. G N Kulkarni", "title": "Keynote Speaker", "startTime": "14:00", "endTime": "14:20", "sessionNumber": 1 },
+        { "speaker": "Er. Ajay Deshpande, Er. Mangal Patil", "title": "Keynote Speaker", "startTime": "14:00", "endTime": "14:20", "sessionNumber": 2 },
+        { "speaker": "Dr. Eng. Zdzisław PÓLKOWSKI", "title": "Keynote Speaker", "startTime": "14:00", "endTime": "14:20", "sessionNumber": 3 },
+        { "speaker": "TBD", "title": "Keynote Speaker", "startTime": "14:00", "endTime": "14:20", "sessionNumber": 4 },
+        { "speaker": "TBD", "title": "Keynote Speaker", "startTime": "14:00", "endTime": "14:20", "sessionNumber": 5 },
+        { "speaker": "TBD", "title": "Keynote Speaker", "startTime": "14:00", "endTime": "14:20", "sessionNumber": 6 },
+        { "speaker": "TBD", "title": "Keynote Speaker", "startTime": "14:00", "endTime": "14:20", "sessionNumber": 7 },
+        { "speaker": "TBD", "title": "Keynote Speaker", "startTime": "14:00", "endTime": "14:20", "sessionNumber": 8 }
+      ],
+      "technical_sessions": [
+        {
+          "id": "session-1",
+          "title": "AI/IoT for Industrial, Agricultural & Smart Applications",
+          "sessionNumber": 1,
+          "mode": "offline",
+          "startTime": "14:20",
+          "endTime": "16:00",
+          "venue": "Location of Building",
+          "chairs": ["Dr. S. R. Desai"],
+          "displayOrder": 1,
+          "papers": [
+            { "order": 1, "title": "Development of a Manually and Remotely Controlled Feeder Line for Broiler Poultry Applications" },
+            { "order": 2, "title": "A Digital Twin-Based Kinematic Simulation Framework for Trajectory Tracking and Error Analysis of 7-DOF Manipulators" },
+            { "order": 3, "title": "Smart Assistive Footwear: Based on IoT and Edge Computing for Visually Challenged Users" },
+            { "order": 4, "title": "Graph Integrated Smart Meter Intelligence for Revenue Assurance and Self-Healing Distribution Networks & Scenarios" },
+            { "order": 5, "title": "Soil Nutrient Analysis for Crop Prediction System" },
+            { "order": 6, "title": "River Water Quality Evaluation Methods: A Review" },
+            { "order": 7, "title": "A Machine Learning-Enabled Decision-Support System for Equipment Loss Risk Assessment and Mitigation in High-Intensity Conflict Zones" }
+          ]
+        },
+        {
+          "id": "session-2",
+          "title": "AI Theory, Optimization, NLP & Learning Systems",
+          "sessionNumber": 2,
+          "mode": "offline",
+          "startTime": "14:20",
+          "endTime": "16:00",
+          "venue": "Location of Building",
+          "chairs": ["Dr. D. B. Kulkarni", "Dr. P. J. Kulkarni"],
+          "displayOrder": 2,
+          "papers": [
+            { "order": 1, "title": "Reconstructing QLoRA from First Principles: A Comprehensive Study of Quantized Low-Rank Fine-Tuning for Large Language Models" },
+            { "order": 2, "title": "Cluster-Evolving Metric-Aware Learning for Intelligent and Sustainable Analytics" },
+            { "order": 3, "title": "On the Solvability and Solution of Second-Order Fuzzy Relational Equations for Trapezoidal e-d Fuzzy Numbers" },
+            { "order": 4, "title": "Sorted: Mirroring Human Logic via Local-First Semantic Organization" },
+            { "order": 5, "title": "Comparative Evaluation of CNN Architectures for Plant and Medicinal Plant Identification Using Leaf Images" },
+            { "order": 6, "title": "Temporal Analysis of Anomalous Behavior in Surveillance Videos Using Long Short-Term Memory Networks" }
+          ]
+        },
+        {
+          "id": "session-3",
+          "title": "Finance, Governance, Cybersecurity & Society",
+          "sessionNumber": 3,
+          "mode": "offline",
+          "startTime": "14:20",
+          "endTime": "16:00",
+          "venue": "Location of Building",
+          "chairs": ["Dr. K. S. Patil"],
+          "displayOrder": 3,
+          "papers": [
+            { "order": 1, "title": "A Systematic Review of Academic Libraries Supporting Interdisciplinary Deep Learning Applications for Sustainable Management" },
+            { "order": 2, "title": "Saving Habits and Investment Behavior of Working Professionals in Kolhapur City Influencing Their Financial Decisions" },
+            { "order": 3, "title": "A Comprehensive Review on the Utilization of Low-Grade Data Center Waste Heat for Absorption Cooling: Pathways to Energy-Sustainable Computing" },
+            { "order": 4, "title": "Bridging the Digital Divide in Business Education: The Role of Artificial Intelligence in Enhancing Employability Skills" },
+            { "order": 5, "title": "Stability-Oriented Multimodal Learning for Robust and Sustainable Malware Detection" },
+            { "order": 6, "title": "A Probabilistic Open-Set Intrusion Detection Framework for Sustainable Security in Decentralized Digital Ecosystems" },
+            { "order": 7, "title": "RPA-based Auto Deployment Module for E-Way Bill Generation" }
+          ]
+        },
+        {
+          "id": "session-4",
+          "title": "Finance, ESG, Business & Digital Economy",
+          "sessionNumber": 4,
+          "mode": "online",
+          "startTime": "14:20",
+          "endTime": "16:00",
+          "venue": "Location of Building",
+          "chairs": ["Dr. M Kiruthika", "Dr. Mrs. S. S. Desai"],
+          "displayOrder": 4,
+          "papers": [
+            { "order": 1, "title": "Generational Differences in FinTech Adoption and Financial Well-Being: An Empirical Study of Generation Z and Millennials" },
+            { "order": 2, "title": "The Role of Social Media in ESG Integration: Evidence from Investor Awareness, Perception, and Decision-Making in Global Equity Markets" },
+            { "order": 3, "title": "Beyond Compliance: Corporate Environmental Sustainability & Community Engagement in India" },
+            { "order": 4, "title": "A Study to Understand Consumer Awareness and Preference Towards Eco-friendly Ganesha Idols in Pune" },
+            { "order": 5, "title": "Syn-SWIFT: A High-Fidelity, Explainable Synthetic SWIFT Dataset for Benchmarking Federated Fraud Classifiers" },
+            { "order": 6, "title": "A Multi-Level Job Title Normalization for Prediction of Job Domain from skills using Machine Learning" },
+            { "order": 7, "title": "Green Banking Practices and Customer Perception: A Study of the Indian Banking Sector" }
+          ]
+        },
+        {
+          "id": "session-5",
+          "title": "Federated Learning, ML Theory & Intelligent Systems",
+          "sessionNumber": 5,
+          "mode": "online",
+          "startTime": "14:20",
+          "endTime": "16:00",
+          "venue": "Location of Building",
+          "chairs": ["Dr. T. Poongodi", "Dr. V. T. Lokare"],
+          "displayOrder": 5,
+          "papers": [
+            { "order": 1, "title": "Comparative Analysis of Model Aggregation Algorithms in Federated Learning" },
+            { "order": 2, "title": "A Comprehensive Survey of JAYA, FISA, TLBO, and RAO-1, RAO-2, and RAO-3 Statistical Optimization Algorithms" },
+            { "order": 3, "title": "FTIR-Driven Hierarchical Deep Learning for Reliable Authentication and Adulterant Identification in Ghee" },
+            { "order": 4, "title": "Deep Multimodal Framework for Detecting External AI Usage in Candidate Interviews through Speech Behaviour" },
+            { "order": 5, "title": "Kalachakra: An Emotional Contextual Memory Intelligence Framework for Human-Centric AI" },
+            { "order": 6, "title": "A Systematic Review of AI-Driven Server-Side Context Caching for Model Context Protocol to Optimize User Query Processing" }
+          ]
+        },
+        {
+          "id": "session-6",
+          "title": "Computer Vision, Signal Processing & Electronics",
+          "sessionNumber": 6,
+          "mode": "online",
+          "startTime": "14:20",
+          "endTime": "16:00",
+          "venue": "Location of Building",
+          "chairs": ["Dr. Aarti Chugh", "Dr. A. V. Nelli"],
+          "displayOrder": 6,
+          "papers": [
+            { "order": 1, "title": "A Comparative Analysis of CNN, ResNet-18, and Hybrid Architectures for Image Tampering Detection" },
+            { "order": 2, "title": "Deep Learning-Based Image Deraining for Robust Object Detection in Autonomous Driving Under Adverse Weather" },
+            { "order": 3, "title": "Comprehensive Design and Performance Evaluation of an 8-bit R-2R Digital-to-Analog Converter" },
+            { "order": 4, "title": "Channel Estimation for OFDM System using Optimization Algorithms" },
+            { "order": 5, "title": "Thermal Analysis of Perforated AL6063-T6 Fin Heat Sink" },
+            { "order": 6, "title": "Retractable Shield with Temperature Adaptation for Enhanced Solar Panel Durability" }
+          ]
+        },
+        {
+          "id": "session-7",
+          "title": "AI in Education, Content Creation & Assistive Applications",
+          "sessionNumber": 7,
+          "mode": "online",
+          "startTime": "14:20",
+          "endTime": "16:00",
+          "venue": "Location of Building",
+          "chairs": ["Dr. Ankit Dhamija", "Dr. J. S. Awati"],
+          "displayOrder": 7,
+          "papers": [
+            { "order": 1, "title": "Intelligent Content Creation System for Educators" },
+            { "order": 2, "title": "AI-Powered Classroom Notes Recorder: Real-Time Transcription, Summarization, and Translation for Accessible Learning" },
+            { "order": 3, "title": "DemoCal: AI-Driven Calorie and Nutrition Estimator" },
+            { "order": 4, "title": "Leveraging Multimedia in ISL Lexicography: Improving Educational Access for Hearing-Impaired Learners" },
+            { "order": 5, "title": "Architecture for Implementing IoT, Data Analytics and Related Advanced Technologies in Banking Sector" },
+            { "order": 6, "title": "AI-Enabled CREO Automation with Predictive Computational Modeling for Sustainable Smart Composite Manufacturing" }
+          ]
+        },
+        {
+          "id": "session-8",
+          "title": "Smart Cities, Transport, Environment & Emerging Applications",
+          "sessionNumber": 8,
+          "mode": "online",
+          "startTime": "14:20",
+          "endTime": "16:00",
+          "venue": "Location of Building",
+          "chairs": ["Prof. Shital Karande", "Dr. Y. M. Patil"],
+          "displayOrder": 8,
+          "papers": [
+            { "order": 1, "title": "Spatio-Temporal Analysis of Road Accident Hotspots: A Case Study on the Samruddhi Mahamarg, Maharashtra" },
+            { "order": 2, "title": "Robust Vision-Based Lane Detection for Advanced Driver Assistance Systems (ADAS)" },
+            { "order": 3, "title": "Impact of Shear Wall Percentage and Grade of Concrete on Seismic Response of G+30 Reinforced Concrete Residential Building" },
+            { "order": 4, "title": "A Review of Photovoltaic Forecasting-Based Sustainable EV Charging in Commercial Buildings" },
+            { "order": 5, "title": "Persistence of Dragonflies (Odonata) in Urban Freshwater Systems and the Potential of Artificial Habitats for Biodiversity Conservation" },
+            { "order": 6, "title": "Method of Secure Authentication for Wireless Sensor Networks Based on Clusters" }
+          ]
+        }
+      ]
+    }
+  ]
+}

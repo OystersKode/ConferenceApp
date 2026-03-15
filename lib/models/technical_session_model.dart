@@ -9,7 +9,7 @@ class TechnicalSessionModel {
   final String endTime;
   final String venue;
   final List<String> chairs;
-  final int displayOrder;
+  final num displayOrder; // Changed to num for consistency
 
   TechnicalSessionModel({
     required this.id,

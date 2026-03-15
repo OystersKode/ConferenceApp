@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import '../../core/constants/app_colors.dart';
 import '../../widgets/bottom_navbar.dart';
+import '../../services/firestore_service.dart';
+import '../../models/day_model.dart';
+import '../../models/event_model.dart';
+import '../../models/technical_session_model.dart';
+import '../../models/keynote_model.dart';
 
 class ScheduleScreen extends StatefulWidget {
   const ScheduleScreen({super.key});
@@ -11,107 +17,152 @@ class ScheduleScreen extends StatefulWidget {
 }
 
 class _ScheduleScreenState extends State<ScheduleScreen> {
-  int _selectedDay = 27;
+  String? _selectedDayId;
+  final FirestoreService _firestoreService = FirestoreService();
+  final Set<String> _expandedEventIds = {};
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAF0),
-      body: Column(
-        children: [
-          _buildHeader(),
-          Expanded(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildSessionList(),
-                  const SizedBox(height: 30),
-                  _buildFeaturedTracks(),
-                  const SizedBox(height: 120),
-                ],
+      backgroundColor: const Color(0xFFF8FAF8),
+      body: StreamBuilder<List<DayModel>>(
+        stream: _firestoreService.getConferenceDays(),
+        builder: (context, daySnapshot) {
+          if (daySnapshot.hasError) {
+            return Center(child: Text('Error: ${daySnapshot.error}'));
+          }
+          if (daySnapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator(color: Color(0xFF2E7D32)));
+          }
+          if (!daySnapshot.hasData || daySnapshot.data!.isEmpty) {
+            return _buildEmptyState('No days found in schedule.');
+          }
+
+          final days = daySnapshot.data!;
+          _selectedDayId ??= days.first.id;
+          final selectedDay = days.firstWhere(
+            (d) => d.id == _selectedDayId,
+            orElse: () => days.first,
+          );
+
+          return Column(
+            children: [
+              _buildHeader(days),
+              Expanded(
+                child: _buildDayContent(selectedDay),
               ),
-            ),
-          ),
-        ],
+            ],
+          );
+        },
       ),
       bottomNavigationBar: const CustomBottomNavBar(),
     );
   }
 
-  Widget _buildHeader() {
-    return Container(
-      padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 10, bottom: 30, left: 20, right: 20),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppColors.primary, AppColors.secondary],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(40),
-          bottomRight: Radius.circular(40),
-        ),
-      ),
+  Widget _buildEmptyState(String message) {
+    return Center(
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
-                onPressed: () => context.go('/'),
-              ),
-              const Text(
-                'SCHEDULE',
-                style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 1.2),
-              ),
-              IconButton(
-                icon: const Icon(Icons.search, color: Colors.white),
-                onPressed: () {},
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              _buildDateTab(27, 'MARCH'),
-              const SizedBox(width: 15),
-              _buildDateTab(28, 'MARCH'),
-            ],
+          const Icon(Icons.calendar_today_outlined, size: 64, color: Colors.grey),
+          const SizedBox(height: 16),
+          Text(message, style: const TextStyle(color: Colors.grey, fontSize: 16)),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: () => context.push('/admin-seeder'),
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF2E7D32)),
+            child: const Text('Go to Seeder', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildDateTab(int day, String month) {
-    bool isSelected = _selectedDay == day;
+  Widget _buildHeader(List<DayModel> days) {
+    return Container(
+      width: double.infinity,
+      decoration: const BoxDecoration(
+        color: Color(0xFF2E7D32),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(40),
+          bottomRight: Radius.circular(40),
+        ),
+      ),
+      child: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.menu, color: Colors.white70),
+                    onPressed: () {},
+                  ),
+                  const Text(
+                    'SCHEDULE',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.5,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.search, color: Colors.white70),
+                    onPressed: () {},
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 10, 20, 30),
+              child: Row(
+                children: days.map((day) => _buildDateTab(day)).toList(),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDateTab(DayModel day) {
+    bool isSelected = _selectedDayId == day.id;
+    DateTime dateTime = DateTime.tryParse(day.date) ?? DateTime.now();
+    String month = DateFormat('MMMM').format(dateTime).toUpperCase();
+    String dayNum = DateFormat('d').format(dateTime);
+
     return Expanded(
       child: GestureDetector(
-        onTap: () => setState(() => _selectedDay = day),
+        onTap: () => setState(() {
+          _selectedDayId = day.id;
+          _expandedEventIds.clear();
+        }),
         child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 8),
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: isSelected ? Colors.white : Colors.white.withOpacity(0.2),
-            borderRadius: BorderRadius.circular(20),
+            color: isSelected ? Colors.white : Colors.white.withOpacity(0.15),
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: isSelected ? [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10)] : null,
           ),
           child: Column(
             children: [
               Text(
                 month,
                 style: TextStyle(
-                  color: isSelected ? AppColors.primary : Colors.white70,
+                  color: isSelected ? Colors.grey.shade600 : Colors.white70,
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               Text(
-                day.toString(),
+                dayNum,
                 style: TextStyle(
-                  color: isSelected ? AppColors.primary : Colors.white,
+                  color: isSelected ? const Color(0xFF2E7D32) : Colors.white,
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
                 ),
@@ -123,94 +174,83 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     );
   }
 
-  Widget _buildSessionList() {
-    return Column(
-      children: [
-        _buildSessionItem(
-          title: 'Registration',
-          subtitle: 'Main Lobby • 08:00 AM - 09:30 AM',
-          tag: 'ONGOING',
-          tagColor: Colors.green,
-        ),
-        const SizedBox(height: 15),
-        _buildExpandedSession(
-          category: 'PLENARY TALK',
-          title: 'Nanotechnology & Graphene Future',
-          speaker: 'Dr. Sarah Johnson',
-          institution: 'MIT Research Institute',
-          location: 'Main Auditorium',
-          time: '10:00 - 11:30 AM',
-        ),
-        const SizedBox(height: 15),
-        _buildSessionItem(
-          title: 'Tech Session: Carbon Apps',
-          time: '12:00 PM',
-          showIndicator: true,
-        ),
-      ],
+  Widget _buildDayContent(DayModel day) {
+    return StreamBuilder<List<EventModel>>(
+      stream: _firestoreService.getDayEvents(day.id),
+      builder: (context, eventSnapshot) {
+        if (eventSnapshot.hasError) {
+          return Center(child: Text('Events Error: ${eventSnapshot.error}'));
+        }
+        if (eventSnapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        
+        final events = eventSnapshot.data ?? [];
+
+        return StreamBuilder<List<TechnicalSessionModel>>(
+          stream: _firestoreService.getDayTechnicalSessions(day.id),
+          builder: (context, sessionSnapshot) {
+            final sessions = sessionSnapshot.data ?? [];
+
+            return StreamBuilder<List<KeynoteModel>>(
+              stream: _firestoreService.getDayKeynotes(day.id),
+              builder: (context, keynoteSnapshot) {
+                final keynotes = keynoteSnapshot.data ?? [];
+
+                if (events.isEmpty && sessions.isEmpty) {
+                  return const Center(child: Text('No events scheduled for this day.'));
+                }
+
+                return ListView(
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
+                  children: [
+                    ...events.map((event) => _buildTimelineItem(event, day)).toList(),
+                    if (sessions.isNotEmpty) ...[
+                      const SizedBox(height: 30),
+                      _buildFeaturedTracksHeader(),
+                      const SizedBox(height: 15),
+                      _buildFeaturedTracksList(sessions, keynotes, day.id),
+                    ],
+                  ],
+                );
+              },
+            );
+          },
+        );
+      },
     );
   }
 
-  Widget _buildSessionItem({required String title, String? subtitle, String? tag, Color? tagColor, String? time, bool showIndicator = false}) {
+  Widget _buildTimelineItem(EventModel event, DayModel day) {
+    bool isExpanded = _expandedEventIds.contains(event.id);
+    bool ongoing = _isOngoing(event.startTime, event.endTime, day.date);
+
+    switch (event.type) {
+      case 'registration':
+        return _buildRegistrationCard(event, ongoing);
+      case 'plenary':
+      case 'keynote':
+        return _buildPlenaryCard(event, isExpanded);
+      case 'technical_session':
+        return _buildTechnicalSessionSummary(event);
+      case 'break':
+      case 'lunch':
+        return _buildSimpleEventCard(event, Icons.restaurant, Colors.orange.shade700);
+      case 'cultural':
+        return _buildSimpleEventCard(event, Icons.theater_comedy, Colors.purple.shade700);
+      default:
+        return _buildSimpleEventCard(event, Icons.event, Colors.blueGrey);
+    }
+  }
+
+  Widget _buildRegistrationCard(EventModel event, bool ongoing) {
     return Container(
+      margin: const EdgeInsets.only(bottom: 20),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10)],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Row(
-              children: [
-                if (showIndicator)
-                  Container(
-                    width: 4,
-                    height: 24,
-                    margin: const EdgeInsets.only(right: 12),
-                    decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(2)),
-                  ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                      if (subtitle != null) Text(subtitle, style: const TextStyle(color: Colors.grey, fontSize: 12)),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (tag != null)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(color: tagColor?.withOpacity(0.1), borderRadius: BorderRadius.circular(5)),
-              child: Text(tag, style: TextStyle(color: tagColor, fontSize: 10, fontWeight: FontWeight.bold)),
-            ),
-          if (time != null)
-            Text(time, style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.bold, fontSize: 14)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildExpandedSession({
-    required String category,
-    required String title,
-    required String speaker,
-    required String institution,
-    required String location,
-    required String time,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF0F9F4),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.primary.withOpacity(0.3), width: 1.5),
+        borderRadius: BorderRadius.circular(25),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 15, offset: const Offset(0, 5))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -218,57 +258,171 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(category, style: const TextStyle(color: AppColors.primary, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
-              const Icon(Icons.keyboard_arrow_down, color: AppColors.primary),
+              Text(
+                event.title,
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF1A1A1A)),
+              ),
+              if (ongoing) _buildOngoingBadge(),
             ],
           ),
-          const SizedBox(height: 5),
-          Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF0F2E11))),
-          const SizedBox(height: 15),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: Colors.white.withOpacity(0.6), borderRadius: BorderRadius.circular(15)),
-            child: Column(
+          const SizedBox(height: 8),
+          Text(
+            '${event.venue} • ${event.startTime} - ${event.endTime}',
+            style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPlenaryCard(EventModel event, bool isExpanded) {
+    Color themeColor = const Color(0xFF2E7D32);
+
+    return GestureDetector(
+      onTap: () => setState(() {
+        if (isExpanded) {
+          _expandedEventIds.remove(event.id);
+        } else {
+          _expandedEventIds.add(event.id);
+        }
+      }),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 20),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(25),
+          border: Border.all(color: themeColor.withOpacity(0.3), width: 1.5),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    CircleAvatar(radius: 18, backgroundColor: AppColors.primary.withOpacity(0.1), child: const Icon(Icons.person, size: 20, color: AppColors.primary)),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(speaker, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14), overflow: TextOverflow.ellipsis),
-                          Text(institution, style: const TextStyle(color: Colors.grey, fontSize: 11), overflow: TextOverflow.ellipsis),
-                        ],
-                      ),
-                    ),
-                  ],
+                Text(
+                  event.type.toUpperCase().replaceAll('_', ' '),
+                  style: TextStyle(
+                    color: themeColor,
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1,
+                  ),
                 ),
-                const SizedBox(height: 10),
-                const Divider(height: 1),
-                const SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Icon(isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, color: themeColor, size: 24),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Text(
+              event.title,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Color(0xFF004D40), height: 1.2),
+            ),
+            if (isExpanded) ...[
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF1F8F1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Column(
                   children: [
-                    Expanded(
-                      child: Row(
-                        children: [
-                          const Icon(Icons.location_on_outlined, size: 14, color: Colors.grey),
-                          const SizedBox(width: 4),
-                          Expanded(child: Text(location, style: const TextStyle(fontSize: 12, color: Colors.grey), overflow: TextOverflow.ellipsis)),
-                        ],
-                      ),
-                    ),
                     Row(
                       children: [
-                        const Icon(Icons.access_time, size: 14, color: Colors.grey),
-                        const SizedBox(width: 4),
-                        Text(time, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                        CircleAvatar(
+                          backgroundColor: themeColor.withOpacity(0.1),
+                          child: Icon(Icons.person, color: themeColor),
+                        ),
+                        const SizedBox(width: 15),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(event.speaker ?? 'TBD', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                              Text(event.organization ?? 'Speaker Affiliation', style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 15),
+                    const Divider(height: 1, color: Colors.black12),
+                    const SizedBox(height: 15),
+                    Row(
+                      children: [
+                        Icon(Icons.location_on_outlined, size: 16, color: Colors.grey.shade600),
+                        const SizedBox(width: 5),
+                        Text(event.venue.isNotEmpty ? event.venue : 'TBD', style: TextStyle(color: Colors.grey.shade700, fontSize: 13)),
+                        const Spacer(),
+                        Icon(Icons.access_time, size: 16, color: Colors.grey.shade600),
+                        const SizedBox(width: 5),
+                        Text('${event.startTime} - ${event.endTime}', style: TextStyle(color: Colors.grey.shade700, fontSize: 13)),
                       ],
                     ),
                   ],
                 ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTechnicalSessionSummary(EventModel event) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10)],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 4,
+            height: 30,
+            decoration: BoxDecoration(color: Colors.blue.shade200, borderRadius: BorderRadius.circular(2)),
+          ),
+          const SizedBox(width: 15),
+          Expanded(
+            child: Text(
+              event.title,
+              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Color(0xFF455A64)),
+            ),
+          ),
+          Text(
+            event.startTime,
+            style: TextStyle(color: Colors.grey.shade500, fontSize: 14, fontWeight: FontWeight.w500),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSimpleEventCard(EventModel event, IconData iconData, Color iconColor) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(color: iconColor.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+            child: Icon(iconData, color: iconColor, size: 20),
+          ),
+          const SizedBox(width: 15),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(event.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                Text('${event.startTime} - ${event.endTime}', style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
               ],
             ),
           ),
@@ -277,64 +431,69 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     );
   }
 
-  Widget _buildFeaturedTracks() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text('Featured Tracks', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF1A1A1A))),
-            TextButton(onPressed: () {}, child: const Text('View All', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold))),
-          ],
+  Widget _buildOngoingBadge() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: const Color(0xFFE8F5E9),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: const Text(
+        'ONGOING',
+        style: TextStyle(
+          color: Color(0xFF2E7D32),
+          fontSize: 9,
+          fontWeight: FontWeight.w900,
+          letterSpacing: 0.5,
         ),
-        const SizedBox(height: 10),
-        SizedBox(
-          height: 280, // Increased height to 280 to safely clear all content
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            physics: const BouncingScrollPhysics(),
-            children: [
-              _buildTrackCard(
-                tag: 'OFFLINE',
-                title: 'Session 01',
-                track: 'Material Science',
-                speaker: 'Prof. Amit Sharma',
-                chair: 'Dr. Kavita Rao',
-                time: '02:00 PM',
-                color: const Color(0xFF0F172A),
-              ),
-              const SizedBox(width: 15),
-              _buildTrackCard(
-                tag: 'HYBRID',
-                title: 'Session 02',
-                track: 'Commercialization',
-                speaker: 'John Doe',
-                chair: 'Elena Petrova',
-                time: '03:30 PM',
-                color: const Color(0xFF064E3B),
-              ),
-            ],
-          ),
+      ),
+    );
+  }
+
+  Widget _buildFeaturedTracksHeader() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        const Text(
+          'Featured Tracks',
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Color(0xFF1A1A1A)),
+        ),
+        TextButton(
+          onPressed: () {},
+          child: const Text('View All', style: TextStyle(color: Color(0xFF2E7D32), fontWeight: FontWeight.bold)),
         ),
       ],
     );
   }
 
-  Widget _buildTrackCard({
-    required String tag,
-    required String title,
-    required String track,
-    required String speaker,
-    required String chair,
-    required String time,
-    required Color color,
-  }) {
+  Widget _buildFeaturedTracksList(List<TechnicalSessionModel> sessions, List<KeynoteModel> keynotes, String dayId) {
+    return SizedBox(
+      height: 280,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: sessions.length,
+        itemBuilder: (context, index) {
+          final session = sessions[index];
+          final keynote = keynotes.firstWhere(
+            (k) => k.sessionNumber == session.sessionNumber,
+            orElse: () => KeynoteModel(id: '', speaker: 'TBD', title: '', startTime: '', endTime: '', sessionNumber: 0),
+          );
+          return _buildFeaturedTrackCard(session, keynote, dayId);
+        },
+      ),
+    );
+  }
+
+  Widget _buildFeaturedTrackCard(TechnicalSessionModel session, KeynoteModel keynote, String dayId) {
+    bool isFirst = session.sessionNumber == 1;
+    Color cardColor = isFirst ? const Color(0xFF121E26) : const Color(0xFF004D40);
+
     return Container(
-      width: 280,
+      width: 260,
+      margin: const EdgeInsets.only(right: 15),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: color,
+        color: cardColor,
         borderRadius: BorderRadius.circular(30),
       ),
       child: Column(
@@ -342,44 +501,71 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
         children: [
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(color: Colors.white.withOpacity(0.1), borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.white.withOpacity(0.2))),
-            child: Text(tag, style: const TextStyle(color: Colors.greenAccent, fontSize: 10, fontWeight: FontWeight.bold)),
-          ),
-          const SizedBox(height: 10),
-          Text(title, style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
-          Text('Track: $track', style: const TextStyle(color: Colors.white60, fontSize: 12)),
-          const Spacer(),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('KEYNOTE SPEAKER', style: TextStyle(color: Colors.white38, fontSize: 9, fontWeight: FontWeight.bold, letterSpacing: 1)),
-              Text(speaker, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500), overflow: TextOverflow.ellipsis),
-              const SizedBox(height: 8),
-              const Text('CHAIR', style: TextStyle(color: Colors.white38, fontSize: 9, fontWeight: FontWeight.bold, letterSpacing: 1)),
-              Text(chair, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500), overflow: TextOverflow.ellipsis),
-            ],
+            decoration: BoxDecoration(color: Colors.white.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+            child: Text(
+              session.mode.toUpperCase(),
+              style: const TextStyle(color: Color(0xFF4DB6AC), fontSize: 9, fontWeight: FontWeight.bold),
+            ),
           ),
           const SizedBox(height: 15),
+          Text(
+            'Session ${session.sessionNumber.toString().padLeft(2, '0')}',
+            style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          Text(
+            'Track: ${session.title}',
+            style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 12),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 20),
+          _buildTrackDetailItem('KEYNOTE SPEAKER', keynote.speaker),
+          const SizedBox(height: 10),
+          _buildTrackDetailItem('CHAIR', session.chairs.isEmpty ? 'TBD' : session.chairs.join(", ")),
+          const Spacer(),
           const Divider(color: Colors.white12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(time, style: const TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.bold)),
+              Text(
+                session.startTime,
+                style: const TextStyle(color: Color(0xFF4DB6AC), fontWeight: FontWeight.bold, fontSize: 16),
+              ),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () => context.push('/session-details/$dayId', extra: session),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.greenAccent.withOpacity(0.8),
-                  foregroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                  minimumSize: const Size(0, 30),
+                  backgroundColor: const Color(0xFF00C853),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 0),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                  minimumSize: const Size(80, 32),
                 ),
-                child: const Text('Details', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                child: const Text('Details', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
               ),
             ],
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildTrackDetailItem(String label, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 9, fontWeight: FontWeight.bold)),
+        Text(
+          value,
+          style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
+    );
+  }
+
+  bool _isOngoing(String startTime, String endTime, String dayDate) {
+    // Demo logic to match the screenshot: Mark '08:45' on March 27 as ongoing
+    return startTime == '08:45' && dayDate.contains('03-27');
   }
 }

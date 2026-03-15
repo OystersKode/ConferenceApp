@@ -5,6 +5,7 @@ import '../screens/auth/login_screen.dart';
 import '../screens/auth/signup_screen.dart';
 import '../features/dashboard/dashboard_screen.dart';
 import '../screens/schedule/schedule_screen.dart';
+import '../screens/schedule/session_details_screen.dart'; // Added
 import '../screens/committees/committees_screen.dart';
 import '../screens/chat/chat_list_screen.dart';
 import '../screens/chat/chat_screen.dart';
@@ -19,8 +20,10 @@ import '../screens/sponsors/sponsors_screen.dart';
 import '../screens/organisers/organisers_screen.dart';
 import '../screens/ppt_download/ppt_download_screen.dart';
 import '../screens/admin/admin_approval_screen.dart';
+import '../screens/admin/seeder_screen.dart';
 import '../screens/splash_screen.dart';
 import '../providers/auth_provider.dart';
+import '../models/technical_session_model.dart'; // Added
 
 class AppRouter {
   static GoRouter getRouter(AuthProvider authProvider) {
@@ -33,37 +36,30 @@ class AppRouter {
         final bool isAuthRoute = state.matchedLocation == '/login' || state.matchedLocation == '/signup';
         final bool isSplash = state.matchedLocation == '/splash';
 
-        // 1. While the app is initializing (checking Firebase session), stay on Splash
         if (!initialized) return '/splash';
 
-        // 2. If at Splash and initialized, decide where to go
         if (isSplash) {
           if (!loggedIn) return '/login';
-          // If logged in, we must check the profile before going to '/'
-          if (authProvider.userModel == null) return null; // Stay on splash until user model is fetched
+          if (authProvider.userModel == null) return null;
           if (!authProvider.userModel!.profileComplete) return '/profile-setup';
           return '/';
         }
 
-        // 3. Not logged in -> Redirect to Login (unless already on an Auth route)
         if (!loggedIn) {
           return isAuthRoute ? null : '/login';
         }
 
-        // 4. Logged in, but user data is still being fetched from Firestore
         if (authProvider.userModel == null) {
-          // Stay on the current screen or show splash if we were at root
           return state.matchedLocation == '/' ? '/splash' : null;
         }
 
-        // 5. Force Profile Setup if incomplete
         if (!authProvider.userModel!.profileComplete && 
             state.matchedLocation != '/profile-setup' &&
-            state.matchedLocation != '/admin-approval') {
+            state.matchedLocation != '/admin-approval' &&
+            state.matchedLocation != '/admin-seeder') {
           return '/profile-setup';
         }
 
-        // 6. If profile is complete, don't allow access to Auth or Setup screens
         if (authProvider.userModel!.profileComplete && 
             (isAuthRoute || state.matchedLocation == '/profile-setup')) {
           return '/';
@@ -77,8 +73,20 @@ class AppRouter {
         GoRoute(path: '/signup', builder: (context, state) => const SignUpScreen()),
         GoRoute(path: '/profile-setup', builder: (context, state) => const ProfileSetupScreen()),
         GoRoute(path: '/admin-approval', builder: (context, state) => const AdminApprovalScreen()),
+        GoRoute(path: '/admin-seeder', builder: (context, state) => const SeederScreen()),
         GoRoute(path: '/', builder: (context, state) => const DashboardScreen()),
         GoRoute(path: '/schedule', builder: (context, state) => const ScheduleScreen()),
+        
+        // New Session Details Route
+        GoRoute(
+          path: '/session-details/:dayId',
+          builder: (context, state) {
+            final dayId = state.pathParameters['dayId']!;
+            final session = state.extra as TechnicalSessionModel;
+            return SessionDetailsScreen(dayId: dayId, session: session);
+          },
+        ),
+
         GoRoute(path: '/committee', builder: (context, state) => const CommitteesScreen()),
         GoRoute(path: '/chat', builder: (context, state) => const ChatListScreen()),
         GoRoute(path: '/chat/:id', builder: (context, state) => ChatScreen(
