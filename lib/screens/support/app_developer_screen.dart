@@ -75,12 +75,13 @@ class AppDeveloperScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 10),
-                        Text(
-                          'Shaping the future through code',
+                        const Text(
+                          'CODE TO CHANGE',
                           style: TextStyle(
                             fontSize: 14,
-                            color: Colors.grey.shade500,
-                            fontWeight: FontWeight.w500,
+                            color: Colors.grey,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.2,
                           ),
                         ),
                       ],
@@ -95,17 +96,23 @@ class AppDeveloperScreen extends StatelessWidget {
                     'DEVELOPMENT TEAM',
                     'Oyster Kode Development Unit',
                   ),
+
+                  // Members Section
+                  _buildMembersCard(),
+
+                  const SizedBox(height: 16),
+
                   _buildInfoTile(
                     Icons.language,
                     'OFFICIAL WEBSITE',
-                    'www.oysterkode.com',
-                    onTap: () => _launchURL('https://www.oysterkode.com'),
+                    'www.oysterkodeclub.com',
+                    onTap: () => _launchURL('https://www.oysterkodeclub.com'),
                   ),
                   _buildInfoTile(
                     Icons.email_outlined,
                     'CONTACT EMAIL',
-                    'contact@oysterkode.com',
-                    onTap: () => _launchURL('mailto:contact@oysterkode.com'),
+                    'oysterkode@ritindia.edu',
+                    onTap: () => _launchURL('mailto:oysterkode@ritindia.edu'),
                   ),
                   
                   const SizedBox(height: 40),
@@ -121,6 +128,81 @@ class AppDeveloperScreen extends StatelessWidget {
         ],
       ),
       bottomNavigationBar: const CustomBottomNavBar(),
+    );
+  }
+
+  Widget _buildMembersCard() {
+    final List<Map<String, String>> members = [
+      {'name': 'Aryan Sutar', 'role': 'Project Lead'},
+      {'name': 'Sumit Divate', 'role': 'Backend Engineer'},
+      {'name': 'Yashraj Shinde', 'role': 'Frontend Engineer'},
+      {'name': 'Suryakant Koli', 'role': 'Frontend Engineer'},
+      {'name': 'Vishwajit Sutar', 'role': 'Database Engineer'},
+    ];
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'DEVELOPMENT MEMBERS',
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              color: AppColors.primary,
+              letterSpacing: 1,
+            ),
+          ),
+          const SizedBox(height: 15),
+          ...members.map((member) => Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Row(
+              children: [
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: const BoxDecoration(
+                    color: AppColors.primary,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: RichText(
+                    text: TextSpan(
+                      style: const TextStyle(fontSize: 15, color: Color(0xFF334155)),
+                      children: [
+                        TextSpan(
+                          text: member['name'],
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        TextSpan(
+                          text: ' (${member['role']})',
+                          style: TextStyle(color: Colors.grey.shade500, fontSize: 13),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          )).toList(),
+        ],
+      ),
     );
   }
 

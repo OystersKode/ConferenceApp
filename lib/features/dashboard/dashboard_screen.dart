@@ -11,7 +11,6 @@ class DashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Updated menuItems: 'Presenter' changed to 'Participants' and route to '/participants'
     final List<Map<String, dynamic>> menuItems = [
       {'title': 'Feedback', 'icon': 'assets/FinalIconss/Feedback.jpg', 'route': '/feedback'},
       {'title': 'Event Details', 'icon': 'assets/FinalIconss/Event_Details.jpg', 'route': '/event-details'},
@@ -19,7 +18,6 @@ class DashboardScreen extends StatelessWidget {
       {'title': 'Speakers', 'icon': 'assets/FinalIconss/Speakers.jpg', 'route': '/speakers'},
       {'title': 'Participants', 'icon': 'assets/FinalIconss/Presenters.jpg', 'route': '/participants'},
       {'title': 'Associate Partners', 'icon': 'assets/FinalIconss/Sponsers.jpg', 'route': '/sponsors'},
-      {'title': 'Organizers', 'icon': 'assets/FinalIconss/Organisers.jpg', 'route': '/organisers'},
       {'title': 'Committees', 'icon': 'assets/FinalIconss/Comitees.jpg', 'route': '/committee'},
       {'title': 'Chat', 'icon': 'assets/FinalIconss/Chat.jpg', 'route': '/chat'},
       {'title': 'PPT Download', 'icon': 'assets/FinalIconss/PPT.jpg', 'route': '/ppt-download'},
@@ -32,8 +30,6 @@ class DashboardScreen extends StatelessWidget {
         child: Column(
           children: [
             const DashboardHeader(),
-            const SizedBox(height: 15),
-            const OrganizerSection(),
             const SizedBox(height: 10),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
