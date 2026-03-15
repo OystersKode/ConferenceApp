@@ -11,13 +11,13 @@ class DashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Exact mapping based on your assets/FinalIconss folder content (JPG files)
+    // Updated menuItems: 'Presenter' changed to 'Participants' and route to '/participants'
     final List<Map<String, dynamic>> menuItems = [
       {'title': 'Feedback', 'icon': 'assets/FinalIconss/Feedback.jpg', 'route': '/feedback'},
       {'title': 'Event Details', 'icon': 'assets/FinalIconss/Event_Details.jpg', 'route': '/event-details'},
       {'title': 'Program Schedule', 'icon': 'assets/FinalIconss/Program_Schedule.jpg', 'route': '/schedule'},
       {'title': 'Speakers', 'icon': 'assets/FinalIconss/Speakers.jpg', 'route': '/speakers'},
-      {'title': 'Presenters', 'icon': 'assets/FinalIconss/Presenters.jpg', 'route': '/presenters'},
+      {'title': 'Participants', 'icon': 'assets/FinalIconss/Presenters.jpg', 'route': '/participants'},
       {'title': 'Associate Sponsers', 'icon': 'assets/FinalIconss/Sponsers.jpg', 'route': '/sponsors'},
       {'title': 'Organizers', 'icon': 'assets/FinalIconss/Organisers.jpg', 'route': '/organisers'},
       {'title': 'Committees', 'icon': 'assets/FinalIconss/Comitees.jpg', 'route': '/committee'},

@@ -14,7 +14,7 @@ import '../features/profile/profile_screen.dart';
 import '../screens/profile/digital_id_screen.dart';
 import '../screens/profile/profile_setup_screen.dart';
 import '../screens/speakers/speakers_screen.dart';
-import '../screens/presenters/presenters_screen.dart';
+import '../screens/participants/participants_screen.dart';
 import '../screens/sponsors/sponsors_screen.dart';
 import '../screens/organisers/organisers_screen.dart';
 import '../screens/ppt_download/ppt_download_screen.dart';
@@ -90,7 +90,7 @@ class AppRouter {
         GoRoute(path: '/profile', builder: (context, state) => const ProfileScreen()),
         GoRoute(path: '/digital-id', builder: (context, state) => const DigitalIdScreen()),
         GoRoute(path: '/speakers', builder: (context, state) => const SpeakersScreen()),
-        GoRoute(path: '/presenters', builder: (context, state) => const PresentersScreen()),
+        GoRoute(path: '/participants', builder: (context, state) => const ParticipantsScreen()),
         GoRoute(path: '/sponsors', builder: (context, state) => const SponsorsScreen()),
         GoRoute(path: '/organisers', builder: (context, state) => const OrganisersScreen()),
         GoRoute(path: '/ppt-download', builder: (context, state) => const PPTDownloadScreen()),
