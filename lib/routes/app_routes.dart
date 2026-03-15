@@ -22,6 +22,7 @@ import '../screens/ppt_download/ppt_download_screen.dart';
 import '../screens/admin/admin_approval_screen.dart';
 import '../screens/admin/seeder_screen.dart';
 import '../screens/splash_screen.dart';
+import '../screens/notification/notification_screen.dart'; // Added
 import '../providers/auth_provider.dart';
 import '../models/technical_session_model.dart'; // Added
 
@@ -102,6 +103,7 @@ class AppRouter {
         GoRoute(path: '/sponsors', builder: (context, state) => const SponsorsScreen()),
         GoRoute(path: '/organisers', builder: (context, state) => const OrganisersScreen()),
         GoRoute(path: '/ppt-download', builder: (context, state) => const PPTDownloadScreen()),
+        GoRoute(path: '/notifications', builder: (context, state) => const NotificationScreen()),
       ],
     );
   }

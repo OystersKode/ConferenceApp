@@ -4,7 +4,7 @@ class ResourceModel {
   final String id;
   final String title;
   final String fileUrl;
-  final String type; // ppt, pdf, image
+  final String type; // 'ppt', 'pdf', etc.
   final String sessionId;
   final String uploadedBy;
 
@@ -23,7 +23,7 @@ class ResourceModel {
       id: doc.id,
       title: data['title'] ?? '',
       fileUrl: data['fileUrl'] ?? '',
-      type: data['type'] ?? '',
+      type: data['type'] ?? 'ppt',
       sessionId: data['sessionId'] ?? '',
       uploadedBy: data['uploadedBy'] ?? 'admin',
     );

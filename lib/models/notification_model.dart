@@ -5,7 +5,7 @@ class NotificationModel {
   final String userId;
   final String title;
   final String message;
-  final String type; // account, schedule_update, announcement, message
+  final String type; // 'account', 'schedule_update', 'announcement', 'message'
   final bool read;
   final DateTime createdAt;
 
@@ -28,7 +28,7 @@ class NotificationModel {
       message: data['message'] ?? '',
       type: data['type'] ?? 'announcement',
       read: data['read'] ?? false,
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
+      createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
   }
 

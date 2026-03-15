@@ -37,6 +37,10 @@ dependencies:
   # Image picker
   image_picker: ^1.0.4
 
+  # File handling
+  dio: ^5.4.0
+  path_provider: ^2.1.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

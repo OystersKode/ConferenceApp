@@ -6,6 +6,9 @@ import '../models/event_model.dart';
 import '../models/technical_session_model.dart';
 import '../models/keynote_model.dart';
 import '../models/paper_model.dart';
+import '../models/resource_model.dart';
+import '../models/notification_model.dart';
+import '../models/feedback_model.dart';
 
 class FirestoreService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -22,6 +25,10 @@ class FirestoreService {
       return UserModel.fromMap(doc.data()!, doc.id);
     }
     return null;
+  }
+
+  Future<void> updateFeedbackStatus(String uid, bool status) async {
+    await _db.collection('users').doc(uid).update({'feedbackSubmitted': status});
   }
 
   // Schedule related
@@ -94,10 +101,86 @@ class FirestoreService {
             .toList());
   }
 
+  // Resources (PPT/PDF) related
+  Stream<List<ResourceModel>> getResources() {
+    return _db.collection('resources').snapshots().map((snapshot) =>
+        snapshot.docs.map((doc) => ResourceModel.fromFirestore(doc)).toList());
+  }
+
+  // Notifications related
+  Stream<List<NotificationModel>> getUserNotifications(String userId) {
+    return _db
+        .collection('notifications')
+        .where('userId', isEqualTo: userId)
+        .snapshots()
+        .map((snapshot) {
+          final docs = snapshot.docs.map((doc) => NotificationModel.fromFirestore(doc)).toList();
+          docs.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+          return docs;
+        });
+  }
+
+  Future<void> markNotificationAsRead(String notificationId) async {
+    await _db.collection('notifications').doc(notificationId).update({'read': true});
+  }
+
+  Future<void> addDemoNotifications(String userId) async {
+    final notifications = [
+      {
+        'userId': userId,
+        'title': 'Signup Approved',
+        'message': 'Your conference account is approved. Welcome to IC-SMART 2026!',
+        'type': 'account',
+        'read': false,
+        'createdAt': FieldValue.serverTimestamp(),
+      },
+      {
+        'userId': userId,
+        'title': 'Schedule Updated',
+        'message': 'Plenary Talk 04 time has been moved to 12:50 PM.',
+        'type': 'schedule_update',
+        'read': false,
+        'createdAt': FieldValue.serverTimestamp(),
+      },
+      {
+        'userId': userId,
+        'title': 'Conference Announcement',
+        'message': 'Join us for the Cultural Programme at 7:00 PM today.',
+        'type': 'announcement',
+        'read': false,
+        'createdAt': FieldValue.serverTimestamp(),
+      },
+    ];
+
+    for (var notification in notifications) {
+      await _db.collection('notifications').add(notification);
+    }
+  }
+
+  // Feedback related - Enhanced for atomicity
+  Future<void> submitConferenceFeedback(FeedbackModel feedback, String authUid) async {
+    final batch = _db.batch();
+    
+    // 1. Save feedback in conference subcollection
+    final feedbackRef = _db
+        .collection('conferences')
+        .doc(conferenceId)
+        .collection('feedback')
+        .doc(feedback.userId); 
+        
+    batch.set(feedbackRef, feedback.toMap());
+    
+    // 2. Update user profile flag atomatically
+    final userRef = _db.collection('users').doc(authUid);
+    batch.update(userRef, {'feedbackSubmitted': true});
+
+    await batch.commit();
+  }
+
   /// Helper to safely convert dynamic maps to Map<String, dynamic>
   Map<String, dynamic> _castMap(dynamic map) => Map<String, dynamic>.from(map as Map);
 
-  /// SEEDER FUNCTION: Enhanced to handle all nested data perfectly
+  /// SEEDER FUNCTION
   Future<void> seedDatabase(dynamic rawData) async {
     final Map<String, dynamic> data = _castMap(rawData);
     final WriteBatch batch = _db.batch();
@@ -136,7 +219,6 @@ class FirestoreService {
       // 3. Process Technical Sessions
       final List sessions = dayData['technical_sessions'] ?? [];
       if (sessions.isNotEmpty) {
-        // Create a summary event in the main timeline for technical sessions
         final techSummaryRef = dayRef.collection('events').doc('event-tech-sessions');
         batch.set(techSummaryRef, {
           'title': 'Technical Sessions (8 Parallel)',
@@ -156,7 +238,6 @@ class FirestoreService {
           final sessionToSave = Map<String, dynamic>.from(sessionData)..remove('papers');
           batch.set(sessionRef, sessionToSave);
 
-          // 4. Process Papers subcollection
           for (var i = 0; i < papers.length; i++) {
             final paperRef = sessionRef.collection('papers').doc('paper-${i + 1}');
             batch.set(paperRef, {
@@ -180,7 +261,7 @@ class FirestoreService {
         snapshot.docs.map((doc) => doc.data()).toList());
   }
 
-  // Feedback related
+  // Legacy Feedback related
   Future<void> submitFeedback(Map<String, dynamic> feedback) async {
     await _db.collection('feedback').add({
       ...feedback,
