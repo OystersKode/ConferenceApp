@@ -281,7 +281,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
 
     switch (event.type) {
       case 'registration':
-        return _buildRegistrationCard(event, ongoing);
+        return _buildRegistrationCard(event);
       case 'plenary':
       case 'keynote':
         return _buildPlenaryCard(event);
@@ -297,7 +297,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     }
   }
 
-  Widget _buildRegistrationCard(EventModel event, bool ongoing) {
+  Widget _buildRegistrationCard(EventModel event) {
     return Container(
       key: ValueKey('reg_${event.id}'),
       margin: const EdgeInsets.only(bottom: 20),
@@ -317,7 +317,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                 event.title,
                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF1A1A1A)),
               ),
-              if (ongoing) _buildOngoingBadge(),
             ],
           ),
           const SizedBox(height: 8),

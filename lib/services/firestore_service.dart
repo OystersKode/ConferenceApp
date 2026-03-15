@@ -101,6 +101,41 @@ class FirestoreService {
             .toList());
   }
 
+  // NEW: Find presenter's presentation details across all days and sessions
+  Future<Map<String, dynamic>?> getPresenterPresentation(String presenterUid) async {
+    try {
+      final daysSnapshot = await _db
+          .collection('conferences')
+          .doc(conferenceId)
+          .collection('days')
+          .get();
+
+      for (var dayDoc in daysSnapshot.docs) {
+        final sessionsSnapshot = await dayDoc.reference
+            .collection('technical_sessions')
+            .get();
+
+        for (var sessionDoc in sessionsSnapshot.docs) {
+          final papersSnapshot = await sessionDoc.reference
+              .collection('papers')
+              .where('presenterId', isEqualTo: presenterUid)
+              .get();
+
+          if (papersSnapshot.docs.isNotEmpty) {
+            return {
+              'paper': PaperModel.fromFirestore(papersSnapshot.docs.first),
+              'session': TechnicalSessionModel.fromFirestore(sessionDoc),
+              'day': DayModel.fromFirestore(dayDoc),
+            };
+          }
+        }
+      }
+    } catch (e) {
+      dev.log('Error fetching presenter presentation: $e');
+    }
+    return null;
+  }
+
   // Resources (PPT/PDF) related
   Stream<List<ResourceModel>> getResources() {
     return _db.collection('resources').snapshots().map((snapshot) =>
@@ -111,7 +146,7 @@ class FirestoreService {
   Stream<List<NotificationModel>> getUserNotifications(String userId) {
     return _db
         .collection('notifications')
-        .where('userId', isEqualTo: userId)
+        .where('userId', whereIn: [userId, 'all'])
         .snapshots()
         .map((snapshot) {
           final docs = snapshot.docs.map((doc) => NotificationModel.fromFirestore(doc)).toList();
