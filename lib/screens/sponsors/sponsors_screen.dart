@@ -11,7 +11,7 @@ class SponsorsScreen extends StatelessWidget {
     final List<String> conferencePartners = [
       'assets/PartnerLogo/ConferencePartners/PES.png',
       'assets/PartnerLogo/ConferencePartners/AIP_Logo.png',
-      'assets/PartnerLogo/ConferencePartners/Taru Publications.jpg.jpeg',
+      'assets/PartnerLogo/ConferencePartners/Taru Publications.jpeg',
     ];
 
     final List<String> associationPartners = [
