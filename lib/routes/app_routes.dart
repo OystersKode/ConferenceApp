@@ -36,12 +36,18 @@ class AppRouter {
       redirect: (context, state) {
         final bool initialized = authProvider.isInitialized;
         final bool loggedIn = authProvider.isAuthenticated;
-        final bool isAuthRoute = state.matchedLocation == '/login' || state.matchedLocation == '/signup';
-        final bool isSplash = state.matchedLocation == '/splash';
-
+        
+        final String location = state.uri.path;
+        
         if (!initialized) return '/splash';
 
-        if (isSplash) {
+        // CRITICAL FIX: Explicitly check for signup first. 
+        // This prevents the redirect from triggering while we are on the signup page.
+        if (location == '/signup') {
+          return null;
+        }
+
+        if (location == '/splash') {
           if (!loggedIn) return '/login';
           if (authProvider.userModel == null) return null;
           if (!authProvider.userModel!.profileComplete) return '/profile-setup';
@@ -49,22 +55,25 @@ class AppRouter {
         }
 
         if (!loggedIn) {
-          return isAuthRoute ? null : '/login';
+          return location == '/signup' ? null : '/login';
         }
 
         if (authProvider.userModel == null) {
-          return state.matchedLocation == '/' ? '/splash' : null;
+          // If logged in (authenticating) but model not yet loaded, 
+          // allow staying on signup if that's where we are.
+          if (location == '/signup') return null;
+          return location == '/' ? '/splash' : null;
         }
 
         if (!authProvider.userModel!.profileComplete && 
-            state.matchedLocation != '/profile-setup' &&
-            state.matchedLocation != '/admin-approval' &&
-            state.matchedLocation != '/admin-seeder') {
+            location != '/profile-setup' &&
+            location != '/admin-approval' &&
+            location != '/admin-seeder') {
           return '/profile-setup';
         }
 
         if (authProvider.userModel!.profileComplete && 
-            (isAuthRoute || state.matchedLocation == '/profile-setup')) {
+            (location == '/login' || location == '/signup' || location == '/profile-setup')) {
           return '/';
         }
 

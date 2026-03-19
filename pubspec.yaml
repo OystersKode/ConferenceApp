@@ -59,6 +59,7 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/images/Guest/Pahune/
     - assets/images/organizers/
     - assets/FinalIconss/
     - assets/PartnerLogo/ConferencePartners/

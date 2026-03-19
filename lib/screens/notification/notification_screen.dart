@@ -6,6 +6,7 @@ import '../../core/constants/app_colors.dart';
 import '../../services/firestore_service.dart';
 import '../../models/notification_model.dart';
 import '../../providers/auth_provider.dart';
+import '../../widgets/bottom_navbar.dart';
 
 class NotificationScreen extends StatelessWidget {
   const NotificationScreen({super.key});
@@ -43,14 +44,18 @@ class NotificationScreen extends StatelessWidget {
 
           return ListView.builder(
             padding: const EdgeInsets.symmetric(vertical: 10),
-            itemCount: notifications.length,
+            itemCount: notifications.length + 1, // Add 1 for the bottom spacing
             itemBuilder: (context, index) {
+              if (index == notifications.length) {
+                return const SizedBox(height: 100); // Space for floating navbar
+              }
               final notification = notifications[index];
               return _buildNotificationItem(context, firestoreService, notification);
             },
           );
         },
       ),
+      bottomNavigationBar: const CustomBottomNavBar(),
     );
   }
 
@@ -116,12 +121,14 @@ class NotificationScreen extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          notification.title,
-                          style: TextStyle(
-                            fontWeight: notification.read ? FontWeight.w500 : FontWeight.bold,
-                            fontSize: 16,
-                            color: const Color(0xFF1A1A1A),
+                        Expanded(
+                          child: Text(
+                            notification.title,
+                            style: TextStyle(
+                              fontWeight: notification.read ? FontWeight.w500 : FontWeight.bold,
+                              fontSize: 16,
+                              color: const Color(0xFF1A1A1A),
+                            ),
                           ),
                         ),
                         if (!notification.read)

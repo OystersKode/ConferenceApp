@@ -5,7 +5,8 @@ import '../../core/constants/app_colors.dart';
 import '../../providers/auth_provider.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  final String? successMessage;
+  const LoginScreen({super.key, this.successMessage});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -49,6 +50,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    String? message = widget.successMessage ?? (GoRouterState.of(context).extra as String?);
+
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -61,175 +64,228 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
         child: SafeArea(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 30.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    // App Bar Area
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 20.0),
-                      child: Text(
-                        'IC-SMART 2026',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
+          child: Stack(
+            children: [
+              SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        // App Bar Area
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 20.0),
+                          child: Text(
+                            'IC-SMART 2026',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
 
-                    const SizedBox(height: 40),
+                        const SizedBox(height: 40),
 
-                    // Logo Section
-                    Container(
-                      width: 100,
-                      height: 100,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(25),
-                        border: Border.all(color: Colors.white.withOpacity(0.2)),
-                      ),
-                      child: const Icon(
-                        Icons.school_outlined,
-                        color: Colors.white,
-                        size: 60,
-                      ),
-                    ),
-
-                    const SizedBox(height: 25),
-
-                    const Text(
-                      'Login',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-
-                    const SizedBox(height: 10),
-
-                    const Text(
-                      'Welcome to IC-SMART 2026',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 14,
-                      ),
-                    ),
-
-                    const SizedBox(height: 50),
-
-                    // Email Input
-                    _buildInputField(
-                      controller: _emailController,
-                      label: 'Email',
-                      hint: 'yourname@example.com',
-                      icon: Icons.email_outlined,
-                      validator: (value) => (value == null || value.isEmpty) ? 'Please enter email' : null,
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // Password Input
-                    _buildInputField(
-                      controller: _passwordController,
-                      label: 'Password',
-                      hint: 'Enter your password',
-                      icon: Icons.lock_outline,
-                      isPassword: true,
-                      isVisible: _isPasswordVisible,
-                      onToggleVisibility: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
-                      validator: (value) => (value == null || value.isEmpty) ? 'Please enter password' : null,
-                    ),
-
-                    const SizedBox(height: 10),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
-                        onPressed: () {
-                          // TODO: Implement Forgot Password
-                        },
-                        child: const Text(
-                          'Forgot Password?',
-                          style: TextStyle(color: Colors.white70, fontSize: 12),
+                        // Logo Section
+                        Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(25),
+                            border: Border.all(color: Colors.white.withOpacity(0.2)),
+                          ),
+                          child: const Icon(
+                            Icons.school_outlined,
+                            color: Colors.white,
+                            size: 60,
+                          ),
                         ),
-                      ),
-                    ),
 
-                    const SizedBox(height: 25),
+                        const SizedBox(height: 25),
 
-                    // Log In Button
-                    Consumer<AuthProvider>(
-                      builder: (context, auth, _) {
-                        return SizedBox(
-                          width: double.infinity,
-                          height: 56,
-                          child: ElevatedButton(
-                            onPressed: auth.isLoading ? null : _handleLogin,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor: AppColors.primary,
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15),
+                        const Text(
+                          'Login',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+
+                        const SizedBox(height: 10),
+
+                        const Text(
+                          'Welcome to IC-SMART 2026',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 14,
+                          ),
+                        ),
+
+                        const SizedBox(height: 50),
+
+                        // Email Input
+                        _buildInputField(
+                          controller: _emailController,
+                          label: 'Email',
+                          hint: 'yourname@example.com',
+                          icon: Icons.email_outlined,
+                          validator: (value) => (value == null || value.isEmpty) ? 'Please enter email' : null,
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        // Password Input
+                        _buildInputField(
+                          controller: _passwordController,
+                          label: 'Password',
+                          hint: 'Enter your password',
+                          icon: Icons.lock_outline,
+                          isPassword: true,
+                          isVisible: _isPasswordVisible,
+                          onToggleVisibility: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
+                          validator: (value) => (value == null || value.isEmpty) ? 'Please enter password' : null,
+                        ),
+
+                        const SizedBox(height: 10),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton(
+                            onPressed: () {
+                              // TODO: Implement Forgot Password
+                            },
+                            child: const Text(
+                              'Forgot Password?',
+                              style: TextStyle(color: Colors.white70, fontSize: 12),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 25),
+
+                        // Log In Button
+                        Consumer<AuthProvider>(
+                          builder: (context, auth, _) {
+                            return SizedBox(
+                              width: double.infinity,
+                              height: 56,
+                              child: ElevatedButton(
+                                onPressed: auth.isLoading ? null : _handleLogin,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  foregroundColor: AppColors.primary,
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15),
+                                  ),
+                                ),
+                                child: auth.isLoading
+                                    ? const CircularProgressIndicator()
+                                    : const Text(
+                                        'Log In',
+                                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                      ),
+                              ),
+                            );
+                          },
+                        ),
+
+                        const SizedBox(height: 40),
+
+                        // Divider
+                        Row(
+                          children: [
+                            Expanded(child: Divider(color: Colors.white.withOpacity(0.2))),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                              child: Text(
+                                'OR',
+                                style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 12),
                               ),
                             ),
-                            child: auth.isLoading
-                                ? const CircularProgressIndicator()
-                                : const Text(
-                                    'Log In',
-                                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                                  ),
-                          ),
-                        );
-                      },
-                    ),
-
-                    const SizedBox(height: 40),
-
-                    // Divider
-                    Row(
-                      children: [
-                        Expanded(child: Divider(color: Colors.white.withOpacity(0.2))),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          child: Text(
-                            'OR',
-                            style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 12),
-                          ),
+                            Expanded(child: Divider(color: Colors.white.withOpacity(0.2))),
+                          ],
                         ),
-                        Expanded(child: Divider(color: Colors.white.withOpacity(0.2))),
+
+                        const SizedBox(height: 40),
+
+                        // Sign Up Link
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              "Don't have an account? ",
+                              style: TextStyle(color: Colors.white70),
+                            ),
+                            GestureDetector(
+                              onTap: () => context.push('/signup'),
+                              child: const Text(
+                                'Sign Up',
+                                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
                       ],
                     ),
-
-                    const SizedBox(height: 40),
-
-                    // Sign Up Link
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          "Don't have an account? ",
-                          style: TextStyle(color: Colors.white70),
-                        ),
-                        GestureDetector(
-                          onTap: () => context.push('/signup'),
-                          child: const Text(
-                            'Sign Up',
-                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                  ],
+                  ),
                 ),
               ),
-            ),
+              
+              // Success Message Notification (Styled like the reference image)
+              if (message != null)
+                Positioned(
+                  bottom: 50,
+                  left: 50,
+                  right: 50,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF333333).withOpacity(0.9),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 20,
+                          height: 20,
+                          decoration: const BoxDecoration(
+                            color: Colors.white24,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.check, color: Colors.white, size: 12),
+                        ),
+                        const SizedBox(width: 10),
+                        Flexible(
+                          child: Text(
+                            message,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
           ),
         ),
       ),

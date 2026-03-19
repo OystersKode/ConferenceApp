@@ -8,6 +8,7 @@ import '../../models/user_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/chat_service.dart';
 import '../../core/constants/app_colors.dart';
+import '../../widgets/bottom_navbar.dart';
 
 class ChatListScreen extends StatelessWidget {
   const ChatListScreen({super.key});
@@ -60,9 +61,14 @@ class ChatListScreen extends StatelessWidget {
 
                 return ListView.separated(
                   padding: EdgeInsets.zero,
-                  itemCount: conversations.length,
-                  separatorBuilder: (context, index) => Divider(height: 1, thickness: 0.5, color: Colors.grey.shade100, indent: 85),
+                  itemCount: conversations.length + 1, // Add 1 for the bottom spacing
+                  separatorBuilder: (context, index) => index < conversations.length - 1 
+                      ? Divider(height: 1, thickness: 0.5, color: Colors.grey.shade100, indent: 85)
+                      : const SizedBox.shrink(),
                   itemBuilder: (context, index) {
+                    if (index == conversations.length) {
+                      return const SizedBox(height: 100); // Space for floating navbar
+                    }
                     final conversation = conversations[index];
                     final otherUserId = conversation.participants.firstWhere((id) => id != currentUserId);
 
@@ -84,6 +90,7 @@ class ChatListScreen extends StatelessWidget {
           ),
         ],
       ),
+      bottomNavigationBar: const CustomBottomNavBar(),
     );
   }
 

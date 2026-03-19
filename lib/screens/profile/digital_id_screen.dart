@@ -3,6 +3,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../providers/auth_provider.dart';
+import '../../widgets/bottom_navbar.dart';
 
 class DigitalIdScreen extends StatelessWidget {
   const DigitalIdScreen({super.key});
@@ -26,7 +27,7 @@ class DigitalIdScreen extends StatelessWidget {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: AppColors.background,
         ),
         child: SingleChildScrollView(
@@ -176,10 +177,12 @@ class DigitalIdScreen extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.grey, fontSize: 13, fontStyle: FontStyle.italic),
               ),
+              const SizedBox(height: 100), // Space for floating navbar
             ],
           ),
         ),
       ),
+      bottomNavigationBar: const CustomBottomNavBar(),
     );
   }
 }

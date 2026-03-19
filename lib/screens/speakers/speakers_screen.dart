@@ -20,102 +20,119 @@ class _SpeakersScreenState extends State<SpeakersScreen> {
       'role': 'Counselor and Director',
       'org': 'Science and Technology Division, Taipei, TAIWAN',
       'country': 'TAIWAN',
+      'image': 'assets/images/Guest/Pahune/Dr. Lung.png',
     },
     {
       'name': 'Prof. Matthew M. Shin',
       'role': 'President',
       'org': 'Pacific States University, USA',
       'country': 'USA',
+      'image': 'assets/images/Guest/Pahune/Prof. Shin.png',
     },
     {
       'name': 'Prof. Laurent Chebassier',
       'role': 'Director International Relations',
       'org': 'Alvancity School for Technology, Business and Society, FRANCE',
       'country': 'FRANCE',
+      'image': 'assets/images/Guest/Pahune/Prof. Chabassier.png',
     },
     {
       'name': 'Dr. Hsing-Hao Wu',
       'role': 'Vice President',
       'org': 'National University of Kaohsiung, TAIWAN',
       'country': 'TAIWAN',
+      'image': 'assets/images/Guest/Pahune/Dr. Wu.png',
     },
     {
       'name': 'Dr. Mohd Amiruddin Rahman',
       'role': 'Deputy Director',
       'org': 'Universiti Putra, MALAYSIA',
       'country': 'MALAYSIA',
+      'image': 'assets/images/Guest/Pahune/Dr. Rahman.png',
     },
     {
       'name': 'Prof. Dr. Thomas Himmelsbach',
       'role': 'Former Professor',
       'org': 'Federal Institute for Geosciences and Natural Resources (BGR), GERMANY',
       'country': 'GERMANY',
+      'image': 'assets/images/Guest/Pahune/Prof. Himmelbach.png',
     },
     {
       'name': 'Alicia Padrós',
       'role': 'Deputy Director',
       'org': 'Goethe-Institut, GERMANY',
       'country': 'GERMANY',
+      'image': 'assets/images/Guest/Pahune/Alicia Pedros.png',
     },
     {
       'name': 'Prof. MAUD LE BARS',
       'role': 'South Asia Area Manager',
       'org': 'Omnes Education, FRANCE',
       'country': 'FRANCE',
+      'image': 'assets/images/Guest/Pahune/Prof. Le Bars.png',
     },
     {
       'name': 'Prof. Suraksha Gupta',
       'role': 'Professor',
       'org': 'University of the Arts London, UK',
       'country': 'UK',
+      'image': 'assets/images/Guest/Pahune/Prof. Gupta.png',
     },
     {
       'name': 'Dr. Amod Bhat',
       'role': 'School for Technology, Business & Society',
       'org': 'Alvancity, Paris, FRANCE',
       'country': 'FRANCE',
+      'image': 'assets/images/Guest/Pahune/Dr. Amod.png',
     },
     {
       'name': 'Dr. Jonas Örtegren',
       'role': 'Professor',
       'org': 'Mid Sweden University, SWEDEN',
       'country': 'SWEDEN',
+      'image': 'assets/images/Guest/Pahune/Dr. Jonas.png',
     },
     {
       'name': 'Hon. Makoto SAITO',
       'role': 'Japanese Language Education Advisor',
       'org': 'JAPAN',
       'country': 'JAPAN',
+      'image': 'assets/images/Guest/Pahune/Hon. Makoto.png',
     },
     {
       'name': 'Dr. Hai Viet LE',
       'role': 'Faculty of Materials Science and Technology',
       'org': 'Vietnam National University HCM City (VNU-HCM), VIETNAM',
       'country': 'VIETNAM',
+      'image': 'assets/images/Guest/Pahune/Dr. Hai.png',
     },
     {
       'name': 'Dr. Viet Van Pham',
       'role': 'HUTECH University',
       'org': 'VIETNAM',
       'country': 'VIETNAM',
+      'image': 'assets/images/Guest/Pahune/Dr. Pham.png',
     },
     {
       'name': 'Dr. Manisha Phadatare',
       'role': 'Professor',
       'org': 'Mid Sweden University, SWEDEN',
       'country': 'SWEDEN',
+      'image': 'assets/images/Guest/Pahune/Dr. Manisha.png',
     },
     {
       'name': 'Dr. Sandeep P Patil',
       'role': 'Institute of General Mechanics',
       'org': 'RWTH Aachen University, GERMANY',
       'country': 'GERMANY',
+      'image': 'assets/images/Guest/Pahune/Dr. Sandeep.png',
     },
     {
       'name': 'Hon. Ram Kunchur',
       'role': 'CEO',
       'org': 'Bionetrik Systems, Bengaluru, INDIA',
       'country': 'INDIA',
+      'image': 'assets/images/Guest/Pahune/Hon. Ram.png',
     },
   ];
 
@@ -143,8 +160,11 @@ class _SpeakersScreenState extends State<SpeakersScreen> {
               ? _buildNoMatchFound()
               : ListView.builder(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                  itemCount: filteredList.length,
+                  itemCount: filteredList.length + 1, // Added 1 for bottom spacing
                   itemBuilder: (context, index) {
+                    if (index == filteredList.length) {
+                      return const SizedBox(height: 100);
+                    }
                     return _buildSpeakerCard(filteredList[index]);
                   },
                 ),
@@ -283,10 +303,19 @@ class _SpeakersScreenState extends State<SpeakersScreen> {
               shape: BoxShape.circle,
               border: Border.all(color: AppColors.primary.withOpacity(0.1), width: 2),
             ),
-            child: Center(
-              child: Text(
-                speaker['name']!.substring(0, 1),
-                style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: AppColors.primary),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(35),
+              child: Image.asset(
+                speaker['image']!,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Center(
+                    child: Text(
+                      speaker['name']!.substring(0, 1),
+                      style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: AppColors.primary),
+                    ),
+                  );
+                },
               ),
             ),
           ),
