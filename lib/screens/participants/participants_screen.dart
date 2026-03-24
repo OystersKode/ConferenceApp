@@ -24,46 +24,56 @@ class _ParticipantsScreenState extends State<ParticipantsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FBF8),
-      body: Column(
-        children: [
-          _buildHeader(),
-          _buildFilterSection(),
-          Expanded(
-            child: StreamBuilder<List<UserModel>>(
-              stream: _getParticipantsStream(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator(color: AppColors.primary));
-                }
-                if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                }
-                if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(child: Text('No participants found'));
-                }
+      body: StreamBuilder<List<UserModel>>(
+        stream: _getParticipantsStream(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('No participants found'));
+          }
 
-                final participants = _filterParticipants(snapshot.data!);
+          final participants = _filterParticipants(snapshot.data!);
 
-                if (participants.isEmpty) {
-                  return const Center(child: Text('No results found'));
-                }
-
-                return ListView.separated(
-                  padding: const EdgeInsets.only(bottom: 100),
-                  itemCount: participants.length,
-                  separatorBuilder: (context, index) => Divider(
-                    height: 1,
-                    thickness: 0.5,
-                    color: Colors.grey.withOpacity(0.1),
+          return SingleChildScrollView(
+            child: Column(
+              children: [
+                _buildHeader(),
+                Transform.translate(
+                  offset: const Offset(0, -40),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 0),
+                    child: Column(
+                      children: [
+                        _buildFilterSection(),
+                        if (participants.isEmpty)
+                          const Padding(
+                            padding: EdgeInsets.only(top: 100),
+                            child: Center(child: Text('No results found')),
+                          )
+                        else
+                          ListView.separated(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
+                            itemCount: participants.length,
+                            separatorBuilder: (context, index) => const SizedBox(height: 12),
+                            itemBuilder: (context, index) {
+                              return _buildParticipantCard(participants[index]);
+                            },
+                          ),
+                      ],
+                    ),
                   ),
-                  itemBuilder: (context, index) {
-                    return _buildParticipantCard(participants[index]);
-                  },
-                );
-              },
+                ),
+              ],
             ),
-          ),
-        ],
+          );
+        },
       ),
       bottomNavigationBar: const CustomBottomNavBar(),
     );
@@ -96,98 +106,103 @@ class _ParticipantsScreenState extends State<ParticipantsScreen> {
   }
 
   Widget _buildHeader() {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.only(
-        top: MediaQuery.of(context).padding.top + 10,
-        bottom: 30,
-        left: 20,
-        right: 20,
-      ),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppColors.primary, AppColors.secondary],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(40),
-          bottomRight: Radius.circular(40),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+          width: double.infinity,
+          padding: EdgeInsets.only(
+            top: MediaQuery.of(context).padding.top + 10,
+            bottom: 80,
+            left: 20,
+            right: 20,
+          ),
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [AppColors.primary, AppColors.secondary],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(40),
+              bottomRight: Radius.circular(40),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              GestureDetector(
-                onTap: () => context.go('/'),
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
-                    shape: BoxShape.circle,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: () => context.go('/'),
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
+                    ),
                   ),
-                  child: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
-                ),
+                  const Text(
+                    'Participants',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(width: 40),
+                ],
               ),
+              const SizedBox(height: 25),
               const Text(
-                'Participants',
+                'IC-SMART 2026',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 32,
+                  fontWeight: FontWeight.w900,
                 ),
               ),
-              const SizedBox(width: 40),
-            ],
-          ),
-          const SizedBox(height: 25),
-          const Text(
-            'IC-SMART 2026',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 32,
-              fontWeight: FontWeight.w900,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Icon(Icons.calendar_today, color: Colors.white.withOpacity(0.7), size: 14),
-              const SizedBox(width: 8),
-              Text(
-                '27th & 28th March, 2026 • Sangli, India',
-                style: TextStyle(
-                  color: Colors.white.withOpacity(0.9),
-                  fontSize: 14,
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Icon(Icons.calendar_today, color: Colors.white.withOpacity(0.7), size: 14),
+                  const SizedBox(width: 8),
+                  Text(
+                    '27th & 28th March, 2026 • Sangli, India',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.9),
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 25),
+              Container(
+                height: 45,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: TextField(
+                  controller: _searchController,
+                  onChanged: (value) => setState(() {}),
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    hintText: 'Search participants...',
+                    hintStyle: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 14),
+                    prefixIcon: Icon(Icons.search, color: Colors.white.withOpacity(0.6)),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 25),
-          Container(
-            height: 45,
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: TextField(
-              controller: _searchController,
-              onChanged: (value) => setState(() {}),
-              style: const TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                hintText: 'Search participants...',
-                hintStyle: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 14),
-                prefixIcon: Icon(Icons.search, color: Colors.white.withOpacity(0.6)),
-                border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(vertical: 10),
-              ),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -234,18 +249,29 @@ class _ParticipantsScreenState extends State<ParticipantsScreen> {
   Widget _buildParticipantCard(UserModel participant) {
     return InkWell(
       onTap: () => _showParticipantDetails(participant),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
         child: Row(
           children: [
             CircleAvatar(
-              radius: 40,
+              radius: 35,
               backgroundColor: Colors.grey.shade200,
               backgroundImage: participant.profilePhoto.isNotEmpty 
                   ? NetworkImage(participant.profilePhoto) 
                   : null,
               child: participant.profilePhoto.isEmpty 
-                  ? const Icon(Icons.person, size: 40, color: Colors.grey) 
+                  ? const Icon(Icons.person, size: 35, color: Colors.grey) 
                   : null,
             ),
             const SizedBox(width: 16),
@@ -266,7 +292,7 @@ class _ParticipantsScreenState extends State<ParticipantsScreen> {
                     participant.organization,
                     style: const TextStyle(
                       color: AppColors.primary,
-                      fontSize: 15,
+                      fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),
                     maxLines: 1,
@@ -277,7 +303,7 @@ class _ParticipantsScreenState extends State<ParticipantsScreen> {
                     participant.designation,
                     style: TextStyle(
                       color: Colors.grey.shade600,
-                      fontSize: 14,
+                      fontSize: 13,
                     ),
                   ),
                 ],

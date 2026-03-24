@@ -201,6 +201,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 shape: BoxShape.circle,
               ),
               child: CircleAvatar(
+                key: ValueKey(_imageFile?.path ?? user.profilePhoto),
                 radius: 40,
                 backgroundColor: Colors.white24,
                 backgroundImage: _imageFile != null 

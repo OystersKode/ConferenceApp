@@ -102,7 +102,8 @@ class AuthService {
   Future<UserModel?> getCurrentUserModel() async {
     User? user = _auth.currentUser;
     if (user != null) {
-      DocumentSnapshot doc = await _firestore.collection('users').doc(user.uid).get();
+      // Force fetch from server to avoid stale data from local cache
+      DocumentSnapshot doc = await _firestore.collection('users').doc(user.uid).get(const GetOptions(source: Source.server));
       if (doc.exists) {
         return UserModel.fromMap(doc.data() as Map<String, dynamic>, doc.id);
       }

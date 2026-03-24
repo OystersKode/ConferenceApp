@@ -14,11 +14,14 @@ class CloudinaryService {
   /// Uploads an image (profile photo) to Cloudinary
   Future<String?> uploadProfilePhoto(File imageFile, String userId) async {
     try {
+      // Using a unique publicId by appending timestamp to force a new URL/prevent overwriting cache issues
+      final String uniquePublicId = 'user_${userId}_${DateTime.now().millisecondsSinceEpoch}';
+      
       CloudinaryResponse response = await _cloudinary.uploadFile(
         CloudinaryFile.fromFile(
           imageFile.path,
           folder: 'profile_photos',
-          publicId: 'user_$userId', // This will result in profile_photos/user_UID
+          publicId: uniquePublicId,
           resourceType: CloudinaryResourceType.Image,
         ),
       );

@@ -27,107 +27,119 @@ class SponsorsScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9F8),
-      body: Column(
-        children: [
-          _buildHeader(context),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(20),
-              children: [
-                _buildSectionHeader('CONFERENCE PARTNERS'),
-                const SizedBox(height: 15),
-                ...conferencePartners.map((path) => _buildSponsorImageCard(path)),
-                const SizedBox(height: 25),
-                _buildSectionHeader('ASSOCIATION PARTNERS'),
-                const SizedBox(height: 15),
-                ...associationPartners.map((path) => _buildSponsorImageCard(path)),
-                const SizedBox(height: 25),
-                _buildSectionHeader('TECHNICAL CO-PARTNERS'),
-                const SizedBox(height: 15),
-                ...technicalCoPartners.map((path) => _buildSponsorImageCard(path)),
-                const SizedBox(height: 100), // Space for floating navbar
-              ],
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            _buildHeader(context),
+            Transform.translate(
+              offset: const Offset(0, -40),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 50), // Push content down to clear the green header
+                    _buildSectionHeader('CONFERENCE PARTNERS'),
+                    const SizedBox(height: 20),
+                    ...conferencePartners.map((path) => _buildSponsorImageCard(path)),
+                    const SizedBox(height: 25),
+                    _buildSectionHeader('ASSOCIATION PARTNERS'),
+                    const SizedBox(height: 20),
+                    ...associationPartners.map((path) => _buildSponsorImageCard(path)),
+                    const SizedBox(height: 25),
+                    _buildSectionHeader('TECHNICAL CO-PARTNERS'),
+                    const SizedBox(height: 20),
+                    ...technicalCoPartners.map((path) => _buildSponsorImageCard(path)),
+                    const SizedBox(height: 100), // Space for floating navbar
+                  ],
+                ),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       bottomNavigationBar: const CustomBottomNavBar(),
     );
   }
 
   Widget _buildHeader(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.only(
-        top: MediaQuery.of(context).padding.top + 10,
-        bottom: 30,
-        left: 20,
-        right: 20,
-      ),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppColors.primary, AppColors.secondary],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(40),
-          bottomRight: Radius.circular(40),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              GestureDetector(
-                onTap: () => context.go('/'),
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
-                ),
-              ),
-              const Text(
-                'Associate Sponsors',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(width: 40),
-            ],
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+          width: double.infinity,
+          padding: EdgeInsets.only(
+            top: MediaQuery.of(context).padding.top + 10,
+            bottom: 80,
+            left: 20,
+            right: 20,
           ),
-          const SizedBox(height: 25),
-          const Text(
-            'IC-SMART 2026',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 32,
-              fontWeight: FontWeight.w900,
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [AppColors.primary, AppColors.secondary],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(40),
+              bottomRight: Radius.circular(40),
             ),
           ),
-          const SizedBox(height: 8),
-          Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(Icons.calendar_today, color: Colors.white.withOpacity(0.7), size: 14),
-              const SizedBox(width: 8),
-              Text(
-                '27th & 28th March, 2026 • Sangli, India',
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: () => context.go('/'),
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
+                    ),
+                  ),
+                  const Text(
+                    'Associate Sponsors',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(width: 40),
+                ],
+              ),
+              const SizedBox(height: 25),
+              const Text(
+                'IC-SMART 2026',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.9),
-                  fontSize: 14,
+                  color: Colors.white,
+                  fontSize: 32,
+                  fontWeight: FontWeight.w900,
                 ),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Icon(Icons.calendar_today, color: Colors.white.withOpacity(0.7), size: 14),
+                  const SizedBox(width: 8),
+                  Text(
+                    '27th & 28th March, 2026 • Sangli, India',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.9),
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -148,7 +160,7 @@ class SponsorsScreen extends StatelessWidget {
           style: const TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w900,
-            color: Color(0xFF708090),
+            color: Colors.black,
             letterSpacing: 1.2,
           ),
         ),

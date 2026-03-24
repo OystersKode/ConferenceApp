@@ -6,7 +6,6 @@ import '../../core/constants/app_colors.dart';
 import '../../models/message_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/chat_service.dart';
-import '../../widgets/bottom_navbar.dart';
 
 class ChatScreen extends StatefulWidget {
   final String chatId;
@@ -94,16 +93,13 @@ class _ChatScreenState extends State<ChatScreen> {
                   controller: _scrollController,
                   reverse: true,
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-                  itemCount: messages.length + 1, // Add 1 for the bottom spacing
+                  itemCount: messages.length,
                   itemBuilder: (context, index) {
-                    if (index == 0) {
-                      return const SizedBox(height: 100); // Space for floating navbar at the bottom (since list is reversed)
-                    }
-                    final msg = messages[index - 1];
+                    final msg = messages[index];
                     final isMe = msg.senderId == currentUserId;
                     
-                    bool showDate = (index - 1) == messages.length - 1 || 
-                        messages[index - 1].timestamp.day != messages[index].timestamp.day;
+                    bool showDate = index == messages.length - 1 || 
+                        messages[index].timestamp.day != messages[index + 1].timestamp.day;
 
                     return Column(
                       children: [
@@ -119,7 +115,6 @@ class _ChatScreenState extends State<ChatScreen> {
           _buildMessageInput(),
         ],
       ),
-      bottomNavigationBar: const CustomBottomNavBar(),
     );
   }
 
@@ -216,7 +211,7 @@ class _ChatScreenState extends State<ChatScreen> {
           topRight: Radius.circular(30),
         ),
       ),
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+      padding: EdgeInsets.fromLTRB(16, 12, 16, MediaQuery.of(context).padding.bottom + 12),
       child: Row(
         children: [
           Expanded(

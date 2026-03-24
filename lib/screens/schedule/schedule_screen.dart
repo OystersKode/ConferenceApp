@@ -71,13 +71,19 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
             orElse: () => days.first,
           );
 
-          return Column(
-            children: [
-              _buildHeader(days),
-              Expanded(
-                child: _buildDayContent(selectedDay),
-              ),
-            ],
+          return SingleChildScrollView(
+            child: Column(
+              children: [
+                _buildHeader(days),
+                Transform.translate(
+                  offset: const Offset(0, -40),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: _buildDayContent(selectedDay),
+                  ),
+                ),
+              ],
+            ),
           );
         },
       ),
@@ -105,82 +111,87 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   }
 
   Widget _buildHeader(List<DayModel> days) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.only(
-        top: MediaQuery.of(context).padding.top + 10,
-        bottom: 30,
-        left: 20,
-        right: 20,
-      ),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppColors.primary, AppColors.secondary],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(40),
-          bottomRight: Radius.circular(40),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              GestureDetector(
-                onTap: () => context.go('/'),
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
-                ),
-              ),
-              const Text(
-                'Program Schedule',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(width: 40),
-            ],
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+          width: double.infinity,
+          padding: EdgeInsets.only(
+            top: MediaQuery.of(context).padding.top + 10,
+            bottom: 80,
+            left: 20,
+            right: 20,
           ),
-          const SizedBox(height: 25),
-          const Text(
-            'IC-SMART 2026',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 32,
-              fontWeight: FontWeight.w900,
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [AppColors.primary, AppColors.secondary],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(40),
+              bottomRight: Radius.circular(40),
             ),
           ),
-          const SizedBox(height: 8),
-          Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(Icons.calendar_today, color: Colors.white.withOpacity(0.7), size: 14),
-              const SizedBox(width: 8),
-              Text(
-                '27th & 28th March, 2026 • Sangli, India',
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: () => context.go('/'),
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
+                    ),
+                  ),
+                  const Text(
+                    'Program Schedule',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(width: 40),
+                ],
+              ),
+              const SizedBox(height: 25),
+              const Text(
+                'IC-SMART 2026',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.9),
-                  fontSize: 14,
+                  color: Colors.white,
+                  fontSize: 32,
+                  fontWeight: FontWeight.w900,
                 ),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Icon(Icons.calendar_today, color: Colors.white.withOpacity(0.7), size: 14),
+                  const SizedBox(width: 8),
+                  Text(
+                    '27th & 28th March, 2026 • Sangli, India',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.9),
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 25),
+              Row(
+                children: days.map((day) => _buildDateTab(day)).toList(),
               ),
             ],
           ),
-          const SizedBox(height: 25),
-          Row(
-            children: days.map((day) => _buildDateTab(day)).toList(),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -250,23 +261,17 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   return const Center(child: Text('No events scheduled for this day.'));
                 }
 
-                return ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
-                  itemCount: events.length + (sessions.isNotEmpty ? 1 : 0),
-                  itemBuilder: (context, index) {
-                    if (index < events.length) {
-                      return _buildTimelineItem(events[index], day);
-                    } else {
-                      return Column(
-                        children: [
-                          const SizedBox(height: 30),
-                          _buildFeaturedTracksHeader(),
-                          const SizedBox(height: 15),
-                          _buildFeaturedTracksList(sessions, keynotes, day.id),
-                        ],
-                      );
-                    }
-                  },
+                return Column(
+                  children: [
+                    ...events.map((event) => _buildTimelineItem(event, day)).toList(),
+                    if (sessions.isNotEmpty) ...[
+                      const SizedBox(height: 30),
+                      _buildFeaturedTracksHeader(),
+                      const SizedBox(height: 15),
+                      _buildFeaturedTracksList(sessions, keynotes, day.id),
+                    ],
+                    const SizedBox(height: 100),
+                  ],
                 );
               },
             );
@@ -277,8 +282,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   }
 
   Widget _buildTimelineItem(EventModel event, DayModel day) {
-    bool ongoing = _isOngoing(event.startTime, event.endTime, day.date);
-
     switch (event.type) {
       case 'registration':
         return _buildRegistrationCard(event);
@@ -476,25 +479,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     );
   }
 
-  Widget _buildOngoingBadge() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: const Color(0xFFE8F5E9),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: const Text(
-        'ONGOING',
-        style: TextStyle(
-          color: AppColors.primary,
-          fontSize: 9,
-          fontWeight: FontWeight.w900,
-          letterSpacing: 0.5,
-        ),
-      ),
-    );
-  }
-
   Widget _buildFeaturedTracksHeader() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -603,9 +587,5 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
         ),
       ],
     );
-  }
-
-  bool _isOngoing(String startTime, String endTime, String dayDate) {
-    return startTime == '08:45' && dayDate.contains('03-27');
   }
 }

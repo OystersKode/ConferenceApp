@@ -41,87 +41,90 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAF8),
-      body: Column(
-        children: [
-          _buildHeader(context),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Event Experience',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF1A1A1A)),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Please share your thoughts on the IC-SMART 2026 Conference sessions.',
-                    style: TextStyle(fontSize: 14, color: Colors.black54),
-                  ),
-                  const SizedBox(height: 25),
-                  
-                  _buildSliderCard(
-                    title: 'OVERALL EXPERIENCE',
-                    question: 'How would you rate your overall experience?',
-                    value: _ratingOverall,
-                    onChanged: (val) => setState(() => _ratingOverall = val),
-                  ),
-                  _buildSliderCard(
-                    title: 'ORGANIZATION',
-                    question: 'How would you rate the event organization?',
-                    value: _ratingOrganization,
-                    onChanged: (val) => setState(() => _ratingOrganization = val),
-                  ),
-                  _buildSliderCard(
-                    title: 'TECHNICAL SESSIONS',
-                    question: 'How satisfied were you with the technical sessions?',
-                    value: _ratingTechnical,
-                    onChanged: (val) => setState(() => _ratingTechnical = val),
-                  ),
-                  _buildSliderCard(
-                    title: 'VENUE & FACILITIES',
-                    question: 'How satisfied were you with the venue facilities?',
-                    value: _ratingVenue,
-                    onChanged: (val) => setState(() => _ratingVenue = val),
-                  ),
-                  _buildSliderCard(
-                    title: 'COMMUNICATION',
-                    question: 'Rate the communication & coordination quality.',
-                    value: _ratingCommunication,
-                    onChanged: (val) => setState(() => _ratingCommunication = val),
-                  ),
-
-                  _buildCommentsInput(
-                    title: 'ADDITIONAL COMMENTS',
-                    question: 'What was your favorite session and why?',
-                    controller: _commentsController,
-                    hint: 'Share your thoughts here...',
-                  ),
-                  
-                  const SizedBox(height: 30),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: _isSubmitting ? null : () => _submitFeedback(context),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF2E7D32),
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                        elevation: 0,
-                      ),
-                      child: _isSubmitting 
-                          ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                          : const Text('Submit Feedback', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            _buildHeader(context),
+            Transform.translate(
+              offset: const Offset(0, -40),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Event Experience',
+                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
                     ),
-                  ),
-                  const SizedBox(height: 100),
-                ],
+                    const SizedBox(height: 8),
+                    Text(
+                      'Please share your thoughts on the IC-SMART 2026 Conference sessions.',
+                      style: TextStyle(fontSize: 14, color: Colors.white.withOpacity(0.9)),
+                    ),
+                    const SizedBox(height: 25),
+                    
+                    _buildSliderCard(
+                      title: 'OVERALL EXPERIENCE',
+                      question: 'How would you rate your overall experience?',
+                      value: _ratingOverall,
+                      onChanged: (val) => setState(() => _ratingOverall = val),
+                    ),
+                    _buildSliderCard(
+                      title: 'ORGANIZATION',
+                      question: 'How would you rate the event organization?',
+                      value: _ratingOrganization,
+                      onChanged: (val) => setState(() => _ratingOrganization = val),
+                    ),
+                    _buildSliderCard(
+                      title: 'TECHNICAL SESSIONS',
+                      question: 'How satisfied were you with the technical sessions?',
+                      value: _ratingTechnical,
+                      onChanged: (val) => setState(() => _ratingTechnical = val),
+                    ),
+                    _buildSliderCard(
+                      title: 'VENUE & FACILITIES',
+                      question: 'How satisfied were you with the venue facilities?',
+                      value: _ratingVenue,
+                      onChanged: (val) => setState(() => _ratingVenue = val),
+                    ),
+                    _buildSliderCard(
+                      title: 'COMMUNICATION',
+                      question: 'Rate the communication & coordination quality.',
+                      value: _ratingCommunication,
+                      onChanged: (val) => setState(() => _ratingCommunication = val),
+                    ),
+
+                    _buildCommentsInput(
+                      title: 'ADDITIONAL COMMENTS',
+                      question: 'What was your favorite session and why?',
+                      controller: _commentsController,
+                      hint: 'Share your thoughts here...',
+                    ),
+                    
+                    const SizedBox(height: 30),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: ElevatedButton(
+                        onPressed: _isSubmitting ? null : () => _submitFeedback(context),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF2E7D32),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                          elevation: 0,
+                        ),
+                        child: _isSubmitting 
+                            ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                            : const Text('Submit Feedback', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      ),
+                    ),
+                    const SizedBox(height: 100),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       bottomNavigationBar: const CustomBottomNavBar(),
     );
@@ -283,116 +286,128 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
   Widget _buildAlreadySubmittedUI(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Column(
-        children: [
-          _buildHeader(context),
-          Expanded(
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: const BoxDecoration(color: Color(0xFFF1F8F1), shape: BoxShape.circle),
-                    child: const Icon(Icons.check_circle, color: Color(0xFF2E7D32), size: 80),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            _buildHeader(context),
+            Transform.translate(
+              offset: const Offset(0, -40),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 100),
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: const BoxDecoration(color: Color(0xFFF1F8F1), shape: BoxShape.circle),
+                        child: const Icon(Icons.check_circle, color: Color(0xFF2E7D32), size: 80),
+                      ),
+                      const SizedBox(height: 30),
+                      const Text('Thank You!', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Color(0xFF1A1A1A))),
+                      const SizedBox(height: 10),
+                      const Text('Your feedback has already been submitted.', textAlign: TextAlign.center, style: TextStyle(fontSize: 16, color: Colors.grey)),
+                      const SizedBox(height: 40),
+                      ElevatedButton(
+                        onPressed: () => context.go('/'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF2E7D32),
+                          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                        ),
+                        child: const Text('BACK TO DASHBOARD', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 30),
-                  const Text('Thank You!', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Color(0xFF1A1A1A))),
-                  const SizedBox(height: 10),
-                  const Text('Your feedback has already been submitted.', textAlign: TextAlign.center, style: TextStyle(fontSize: 16, color: Colors.grey)),
-                  const SizedBox(height: 40),
-                  ElevatedButton(
-                    onPressed: () => context.go('/'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2E7D32),
-                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                    ),
-                    child: const Text('BACK TO DASHBOARD', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                  ),
-                ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       bottomNavigationBar: const CustomBottomNavBar(),
     );
   }
 
   Widget _buildHeader(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.only(
-        top: MediaQuery.of(context).padding.top + 10,
-        bottom: 30,
-        left: 20,
-        right: 20,
-      ),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppColors.primary, AppColors.secondary],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(40),
-          bottomRight: Radius.circular(40),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              GestureDetector(
-                onTap: () => context.go('/'),
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
-                ),
-              ),
-              const Text(
-                'Feedback',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(width: 40),
-            ],
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+          width: double.infinity,
+          padding: EdgeInsets.only(
+            top: MediaQuery.of(context).padding.top + 10,
+            bottom: 80,
+            left: 20,
+            right: 20,
           ),
-          const SizedBox(height: 25),
-          const Text(
-            'IC-SMART 2026',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 32,
-              fontWeight: FontWeight.w900,
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [AppColors.primary, AppColors.secondary],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(40),
+              bottomRight: Radius.circular(40),
             ),
           ),
-          const SizedBox(height: 8),
-          Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(Icons.calendar_today, color: Colors.white.withOpacity(0.7), size: 14),
-              const SizedBox(width: 8),
-              Text(
-                '27th & 28th March, 2026 • Sangli, India',
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: () => context.go('/'),
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
+                    ),
+                  ),
+                  const Text(
+                    'Feedback',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(width: 40),
+                ],
+              ),
+              const SizedBox(height: 25),
+              const Text(
+                'IC-SMART 2026',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.9),
-                  fontSize: 14,
+                  color: Colors.white,
+                  fontSize: 32,
+                  fontWeight: FontWeight.w900,
                 ),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Icon(Icons.calendar_today, color: Colors.white.withOpacity(0.7), size: 14),
+                  const SizedBox(width: 8),
+                  Text(
+                    '27th & 28th March, 2026 • Sangli, India',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.9),
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

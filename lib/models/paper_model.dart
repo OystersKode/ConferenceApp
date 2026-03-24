@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class PaperModel {
   final String id;
   final String title;
-  final String presenterId;
+  final String? presenterId; // Changed to nullable
   final String sessionId;
   final List<String> correspondingAuthors;
   final String status; // accepted, pending, rejected
@@ -12,7 +12,7 @@ class PaperModel {
   PaperModel({
     required this.id,
     required this.title,
-    required this.presenterId,
+    this.presenterId,
     required this.sessionId,
     required this.correspondingAuthors,
     required this.status,
@@ -24,7 +24,7 @@ class PaperModel {
     return PaperModel(
       id: doc.id,
       title: data['title'] ?? '',
-      presenterId: data['presenterId'] ?? '',
+      presenterId: data['presenterId'],
       sessionId: data['sessionId'] ?? '',
       correspondingAuthors: List<String>.from(data['correspondingAuthors'] ?? []),
       status: data['status'] ?? 'pending',

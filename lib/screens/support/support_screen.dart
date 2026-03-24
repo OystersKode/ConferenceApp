@@ -20,81 +20,127 @@ class SupportScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F6F6),
-      body: Column(
-        children: [
-          _buildHeader(context),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-              children: [
-                _buildSectionHeader('CONFERENCE SUPPORT'),
-                const SizedBox(height: 15),
-                _buildSupportCard(
-                  name: 'Prof. Dr. V. H. Kalmani',
-                  email: 'vijay.kalmani@ritindia.edu',
-                  role: 'Organizing Chair',
-                  icon: Icons.person_outline,
-                  onTap: () => _launchEmail('vijay.kalmani@ritindia.edu'),
+      backgroundColor: const Color(0xFFF8FAF8),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            _buildHeader(context),
+            Transform.translate(
+              offset: const Offset(0, -40),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSectionHeader('CONFERENCE SUPPORT'),
+                    const SizedBox(height: 15),
+                    _buildSupportCard(
+                      name: 'Prof. Dr. V. H. Kalmani',
+                      email: 'vijay.kalmani@ritindia.edu',
+                      role: 'Organizing Chair',
+                      icon: Icons.person_outline,
+                      onTap: () => _launchEmail('vijay.kalmani@ritindia.edu'),
+                    ),
+                    const SizedBox(height: 25),
+                    _buildSectionHeader('TECHNICAL SUPPORT'),
+                    const SizedBox(height: 15),
+                    _buildSupportCard(
+                      name: 'Oyster Kode Club',
+                      email: 'oysterkode@ritindia.edu',
+                      role: 'App Development Team',
+                      icon: Icons.code,
+                      onTap: () => _launchEmail('oysterkode@ritindia.edu'),
+                    ),
+                    const SizedBox(height: 100),
+                  ],
                 ),
-                const SizedBox(height: 20),
-                _buildSectionHeader('TECHNICAL SUPPORT'),
-                const SizedBox(height: 15),
-                _buildSupportCard(
-                  name: 'Oyster Kode Club',
-                  email: 'oysterkode@ritindia.edu',
-                  role: 'App Development Team',
-                  icon: Icons.code,
-                  onTap: () => _launchEmail('oysterkode@ritindia.edu'),
-                ),
-                const SizedBox(height: 100),
-              ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       bottomNavigationBar: const CustomBottomNavBar(),
     );
   }
 
   Widget _buildHeader(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      color: AppColors.primary,
-      padding: EdgeInsets.only(
-        top: MediaQuery.of(context).padding.top + 10,
-        bottom: 20,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15),
-        child: Row(
-          children: [
-            GestureDetector(
-              onTap: () => context.go('/'),
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
-              ),
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+          width: double.infinity,
+          padding: EdgeInsets.only(
+            top: MediaQuery.of(context).padding.top + 10,
+            bottom: 80,
+            left: 20,
+            right: 20,
+          ),
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [AppColors.primary, AppColors.secondary],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
-            const Expanded(
-              child: Text(
-                'Support',
-                textAlign: TextAlign.center,
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(40),
+              bottomRight: Radius.circular(40),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: () => context.go('/'),
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
+                    ),
+                  ),
+                  const Text(
+                    'Support',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(width: 40),
+                ],
+              ),
+              const SizedBox(height: 25),
+              const Text(
+                'IC-SMART 2026',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 32,
+                  fontWeight: FontWeight.w900,
                 ),
               ),
-            ),
-            const SizedBox(width: 40),
-          ],
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Icon(Icons.calendar_today, color: Colors.white.withOpacity(0.7), size: 14),
+                  const SizedBox(width: 8),
+                  Text(
+                    '27th & 28th March, 2026 • Sangli, India',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.9),
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
-      ),
+      ],
     );
   }
 
