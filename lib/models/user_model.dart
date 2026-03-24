@@ -14,6 +14,7 @@ class UserModel {
   final String designation;
   final String organization;
   final String? paperTitle; // For presenters
+  final String? linkedPaperPath; // For presenters: path to paper in Firestore
   final List<String> correspondingAuthors; // For presenters
   final bool feedbackSubmitted;
   final bool profileComplete;
@@ -33,6 +34,7 @@ class UserModel {
     this.designation = '',
     this.organization = '',
     this.paperTitle,
+    this.linkedPaperPath,
     this.correspondingAuthors = const [],
     this.feedbackSubmitted = false,
     this.profileComplete = false,
@@ -54,6 +56,7 @@ class UserModel {
       designation: map['designation'] ?? '',
       organization: map['organization'] ?? '',
       paperTitle: map['paperTitle'],
+      linkedPaperPath: map['linkedPaperPath'],
       correspondingAuthors: List<String>.from(map['correspondingAuthors'] ?? []),
       feedbackSubmitted: map['feedbackSubmitted'] ?? false,
       profileComplete: map['profileComplete'] ?? false,
@@ -77,6 +80,7 @@ class UserModel {
       'designation': designation,
       'organization': organization,
       'paperTitle': paperTitle,
+      'linkedPaperPath': linkedPaperPath,
       'correspondingAuthors': correspondingAuthors,
       'feedbackSubmitted': feedbackSubmitted,
       'profileComplete': profileComplete,

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../../core/constants/app_colors.dart';
 import '../../services/firestore_service.dart';
 import '../../models/technical_session_model.dart';
@@ -177,33 +176,105 @@ class SessionDetailsScreen extends StatelessWidget {
               ),
             ],
           ),
-          if (paper.correspondingAuthors.isNotEmpty) ...[
-            const SizedBox(height: 16),
-            const Divider(),
-            const SizedBox(height: 12),
-            const Text(
-              'AUTHORS',
-              style: TextStyle(
-                color: Colors.grey,
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Wrap(
-              spacing: 8,
-              children: paper.correspondingAuthors.map((author) => Chip(
-                label: Text(author, style: const TextStyle(fontSize: 11)),
-                backgroundColor: Colors.grey.shade100,
-                side: BorderSide.none,
-                padding: EdgeInsets.zero,
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              )).toList(),
-            ),
-          ],
+          const SizedBox(height: 16),
+          const Divider(),
+          const SizedBox(height: 12),
+          FutureBuilder<List<Map<String, dynamic>>>(
+            future: _getAuthorsDetails(paper),
+            builder: (context, snapshot) {
+              final authors = snapshot.data ?? [];
+              
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'PRESENTERS & AUTHORS',
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  if (authors.isEmpty)
+                    Wrap(
+                      spacing: 8,
+                      children: paper.correspondingAuthors.map((author) => Chip(
+                        label: Text(author, style: const TextStyle(fontSize: 11)),
+                        backgroundColor: Colors.grey.shade100,
+                        side: BorderSide.none,
+                      )).toList(),
+                    )
+                  else
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: authors.map((author) {
+                        bool isPresenter = author['uid'] == paper.presenterId;
+                        return Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: isPresenter ? AppColors.primary.withOpacity(0.1) : Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(15),
+                            border: isPresenter ? Border.all(color: AppColors.primary.withOpacity(0.3)) : null,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (isPresenter)
+                                const Padding(
+                                  padding: EdgeInsets.only(right: 6),
+                                  child: Icon(Icons.mic, size: 14, color: AppColors.primary),
+                                ),
+                              Text(
+                                author['name'],
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: isPresenter ? FontWeight.bold : FontWeight.normal,
+                                  color: isPresenter ? AppColors.primary : Colors.black87,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                ],
+              );
+            },
+          ),
         ],
       ),
     );
+  }
+
+  Future<List<Map<String, dynamic>>> _getAuthorsDetails(PaperModel paper) async {
+    List<Map<String, dynamic>> details = [];
+    final firestore = FirestoreService();
+    
+    // Add presenter if available
+    if (paper.presenterId != null) {
+      final user = await firestore.getUser(paper.presenterId!);
+      if (user != null) {
+        details.add({
+          'name': user.name,
+          'uid': user.uid,
+          'isPresenter': true,
+        });
+      }
+    }
+
+    // Add co-authors from correspondingAuthors list (filtering out presenter if they are in both)
+    for (var authorName in paper.correspondingAuthors) {
+      if (details.any((d) => d['name'] == authorName)) continue;
+      details.add({
+        'name': authorName,
+        'uid': null,
+        'isPresenter': false,
+      });
+    }
+
+    return details;
   }
 }

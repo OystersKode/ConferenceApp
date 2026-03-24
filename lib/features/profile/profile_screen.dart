@@ -2,12 +2,17 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/constants/app_colors.dart';
 import '../../widgets/bottom_navbar.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/auth_service.dart';
+import '../../services/firestore_service.dart';
 import '../../services/cloudinary_service.dart';
 import '../../models/user_model.dart';
+import '../../models/technical_session_model.dart';
+import '../../models/paper_model.dart';
+import '../../models/day_model.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -254,6 +259,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (user.role == 'presenter') ...[
+            const Text(
+              'ALLOCATED SESSION',
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.primary),
+            ),
+            const SizedBox(height: 10),
+            _buildPresentationCard(user),
+            const SizedBox(height: 20),
+          ],
           const Text(
             'PERSONAL DETAILS',
             style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.primary),
@@ -306,6 +320,109 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 30),
         ],
       ),
+    );
+  }
+
+  Widget _buildPresentationCard(UserModel user) {
+    return FutureBuilder<Map<String, dynamic>?>(
+      future: FirestoreService().getPresenterPresentation(user.uid, paperPath: user.linkedPaperPath),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: Padding(
+            padding: EdgeInsets.all(8.0),
+            child: CircularProgressIndicator(),
+          ));
+        }
+        if (!snapshot.hasData || snapshot.data == null) {
+          return Container(
+            padding: const EdgeInsets.all(15),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: const Center(child: Text('No session details found yet.')),
+          );
+        }
+
+        final paper = snapshot.data!['paper'] as PaperModel;
+        final session = snapshot.data!['session'] as TechnicalSessionModel;
+        final day = snapshot.data!['day'] as DayModel;
+
+        return GestureDetector(
+          onTap: () => context.push('/session-details/${day.id}', extra: session),
+          child: Container(
+            padding: const EdgeInsets.all(15),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 5)),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(Icons.slideshow, color: AppColors.primary, size: 20),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Session ${session.sessionNumber}',
+                            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey),
+                          ),
+                          Text(
+                            session.title,
+                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.dark),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Icon(Icons.chevron_right, color: Colors.grey),
+                  ],
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 10),
+                  child: Divider(height: 1),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _buildSmallInfoItem(Icons.calendar_today_outlined, day.title),
+                    _buildSmallInfoItem(Icons.access_time_outlined, session.startTime),
+                    _buildSmallInfoItem(Icons.location_on_outlined, session.venue),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSmallInfoItem(IconData icon, String text) {
+    return Row(
+      children: [
+        Icon(icon, color: AppColors.primary, size: 12),
+        const SizedBox(width: 4),
+        Text(
+          text,
+          style: const TextStyle(fontSize: 11, color: AppColors.dark),
+        ),
+      ],
     );
   }
 

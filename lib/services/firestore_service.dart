@@ -101,9 +101,24 @@ class FirestoreService {
             .toList());
   }
 
-  // NEW: Find presenter's presentation details across all days and sessions
-  Future<Map<String, dynamic>?> getPresenterPresentation(String presenterUid) async {
+  // NEW: Find presenter's presentation details using path or searching
+  Future<Map<String, dynamic>?> getPresenterPresentation(String presenterUid, {String? paperPath}) async {
     try {
+      if (paperPath != null && paperPath.isNotEmpty) {
+        final paperDoc = await _db.doc(paperPath).get();
+        if (paperDoc.exists) {
+          final sessionDoc = await paperDoc.reference.parent.parent!.get();
+          final dayDoc = await sessionDoc.reference.parent.parent!.get();
+          
+          return {
+            'paper': PaperModel.fromFirestore(paperDoc),
+            'session': TechnicalSessionModel.fromFirestore(sessionDoc),
+            'day': DayModel.fromFirestore(dayDoc),
+          };
+        }
+      }
+
+      // Fallback: Search across all days and sessions if path is missing
       final daysSnapshot = await _db
           .collection('conferences')
           .doc(conferenceId)

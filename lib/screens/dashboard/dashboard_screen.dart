@@ -36,12 +36,41 @@ class DashboardScreen extends StatelessWidget {
     ];
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF1F5F1), // Light greenish background
       appBar: const AppHeader(title: 'IC SMART 2026'),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (isPresenter && user != null) _buildPresenterBanner(user.uid),
+            // Banner Image
+            Container(
+              width: double.infinity,
+              height: 180,
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/images/banner.jpeg'),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            
+            // Allocated Session for Presenters
+            if (isPresenter && user != null) ...[
+              const Padding(
+                padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
+                child: Text(
+                  'ALLOCATED SESSION',
+                  style: TextStyle(
+                    color: Color(0xFF1B5E20),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ),
+              _buildPresenterBanner(user.uid, user.linkedPaperPath),
+            ],
+            
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: GridView.builder(
@@ -69,101 +98,108 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPresenterBanner(String uid) {
+  Widget _buildPresenterBanner(String uid, String? paperPath) {
     return FutureBuilder<Map<String, dynamic>?>(
-      future: FirestoreService().getPresenterPresentation(uid),
+      future: FirestoreService().getPresenterPresentation(uid, paperPath: paperPath),
       builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: Padding(
+            padding: EdgeInsets.all(16.0),
+            child: CircularProgressIndicator(color: Color(0xFF2E7D32)),
+          ));
+        }
         if (!snapshot.hasData || snapshot.data == null) return const SizedBox.shrink();
 
-        final paper = snapshot.data!['paper'] as PaperModel;
         final session = snapshot.data!['session'] as TechnicalSessionModel;
         final day = snapshot.data!['day'] as DayModel;
 
-        return Container(
-          width: double.infinity,
-          margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [AppColors.primary, AppColors.secondary],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+        return GestureDetector(
+          onTap: () => context.push('/session-details/${day.id}', extra: session),
+          child: Container(
+            width: double.infinity,
+            margin: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(25),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primary.withOpacity(0.3),
-                blurRadius: 10,
-                offset: const Offset(0, 5),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  const Icon(Icons.mic_external_on, color: Colors.white, size: 24),
-                  const SizedBox(width: 8),
-                  Text(
-                    'MY PRESENTATION',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.9),
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.2,
-                      fontSize: 12,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE8F5E9),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: const Icon(Icons.play_lesson_outlined, color: Color(0xFF2E7D32), size: 24),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Text(
-                paper.title,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                    const SizedBox(width: 15),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Session ${session.sessionNumber}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade600,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          Text(
+                            session.title,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF1B5E20),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Icon(Icons.chevron_right, color: Colors.grey),
+                  ],
                 ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 15),
-              const Divider(color: Colors.white24),
-              const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _buildInfoItem(Icons.calendar_today, day.title),
-                  _buildInfoItem(Icons.access_time, session.startTime),
-                  _buildInfoItem(Icons.location_on, session.venue),
-                ],
-              ),
-              const SizedBox(height: 15),
-              ElevatedButton(
-                onPressed: () => context.push('/session-details/${day.id}', extra: session),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: AppColors.primary,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  elevation: 0,
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: Divider(height: 1),
                 ),
-                child: const Text('View Full Session Details', style: TextStyle(fontWeight: FontWeight.bold)),
-              ),
-            ],
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _buildSmallInfoItem(Icons.calendar_today_outlined, 'Day ${day.dayNumber == 1 ? "I" : day.dayNumber == 2 ? "II" : day.dayNumber}'),
+                    _buildSmallInfoItem(Icons.access_time_outlined, session.startTime),
+                    _buildSmallInfoItem(Icons.location_on_outlined, session.venue),
+                  ],
+                ),
+              ],
+            ),
           ),
         );
       },
     );
   }
 
-  Widget _buildInfoItem(IconData icon, String label) {
+  Widget _buildSmallInfoItem(IconData icon, String text) {
     return Row(
       children: [
-        Icon(icon, color: Colors.white70, size: 14),
-        const SizedBox(width: 4),
+        Icon(icon, color: const Color(0xFF2E7D32), size: 16),
+        const SizedBox(width: 6),
         Text(
-          label,
-          style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500),
+          text,
+          style: const TextStyle(fontSize: 12, color: Color(0xFF2E7D32), fontWeight: FontWeight.w500),
         ),
       ],
     );
