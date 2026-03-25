@@ -41,8 +41,6 @@ class AppRouter {
         
         if (!initialized) return '/splash';
 
-        // CRITICAL FIX: Explicitly check for signup first. 
-        // This prevents the redirect from triggering while we are on the signup page.
         if (location == '/signup') {
           return null;
         }
@@ -59,8 +57,6 @@ class AppRouter {
         }
 
         if (authProvider.userModel == null) {
-          // If logged in (authenticating) but model not yet loaded, 
-          // allow staying on signup if that's where we are.
           if (location == '/signup') return null;
           return location == '/' ? '/splash' : null;
         }

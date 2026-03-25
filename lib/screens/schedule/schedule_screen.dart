@@ -213,11 +213,13 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                 children: [
                   Icon(Icons.calendar_today, color: Colors.white.withOpacity(0.7), size: 14),
                   const SizedBox(width: 8),
-                  Text(
-                    '27th & 28th March, 2026 • Sangli, India',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.9),
-                      fontSize: 14,
+                  Expanded(
+                    child: Text(
+                      '27th & 28th March, 2026 • Sangli, India',
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.9),
+                        fontSize: 14,
+                      ),
                     ),
                   ),
                 ],
@@ -350,11 +352,18 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                 // Filtering logic for events
                 final filteredEvents = events.where((e) {
                   if (_searchQuery.isEmpty) return true;
-                  return e.title.toLowerCase().contains(_searchQuery) ||
+                  bool matches = e.title.toLowerCase().contains(_searchQuery) ||
                          (e.speaker?.toLowerCase().contains(_searchQuery) ?? false) ||
                          (e.organization?.toLowerCase().contains(_searchQuery) ?? false) ||
                          (e.chair?.toLowerCase().contains(_searchQuery) ?? false) ||
                          (e.venue.toLowerCase().contains(_searchQuery));
+                  
+                  if (matches) return true;
+
+                  if ((e.type == 'panel_discussion' || e.type == 'panel') && e.panelists != null) {
+                    return e.panelists!.any((p) => p.toLowerCase().contains(_searchQuery));
+                  }
+                  return false;
                 }).toList();
 
                 // Filtering logic for sessions (searching in session details AND papers)
@@ -418,6 +427,12 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       case 'plenary':
       case 'keynote':
         return _buildPlenaryCard(event);
+      case 'panel_discussion':
+      case 'panel':
+        return _buildPanelDiscussionCard(event);
+      case 'parallel_session':
+      case 'online_session':
+        return _buildGenericSessionCard(event);
       case 'technical_session':
         return _buildTechnicalSessionSummary(event);
       case 'break':
@@ -446,9 +461,11 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                event.title,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF1A1A1A)),
+              Expanded(
+                child: Text(
+                  event.title,
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF1A1A1A)),
+                ),
               ),
             ],
           ),
@@ -527,12 +544,20 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                     const SizedBox(height: 15),
                     const Divider(height: 1, color: Colors.black12),
                     const SizedBox(height: 15),
+                    if (event.chair != null) ...[
+                      _buildIconDetail(Icons.assignment_ind_outlined, 'Chair: ${event.chair}'),
+                      const SizedBox(height: 8),
+                    ],
+                    if (event.moderator != null) ...[
+                      _buildIconDetail(Icons.record_voice_over_outlined, 'Moderator: ${event.moderator}'),
+                      const SizedBox(height: 8),
+                    ],
                     Row(
                       children: [
                         Icon(Icons.location_on_outlined, size: 16, color: Colors.grey.shade600),
                         const SizedBox(width: 5),
-                        Text(event.venue.isNotEmpty ? event.venue : 'TBD', style: TextStyle(color: Colors.grey.shade700, fontSize: 13)),
-                        const Spacer(),
+                        Expanded(child: Text(event.venue.isNotEmpty ? event.venue : 'TBD', style: TextStyle(color: Colors.grey.shade700, fontSize: 13), overflow: TextOverflow.ellipsis)),
+                        const SizedBox(width: 10),
                         Icon(Icons.access_time, size: 16, color: Colors.grey.shade600),
                         const SizedBox(width: 5),
                         Text('${event.startTime} - ${event.endTime}', style: TextStyle(color: Colors.grey.shade700, fontSize: 13)),
@@ -545,6 +570,167 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildPanelDiscussionCard(EventModel event) {
+    return Container(
+      key: ValueKey('panel_${event.id}'),
+      margin: const EdgeInsets.only(bottom: 20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(25),
+        border: Border.all(color: Colors.indigo.withOpacity(0.3), width: 1.5),
+      ),
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          key: PageStorageKey(event.id),
+          initiallyExpanded: _searchQuery.isNotEmpty && 
+              (event.title.toLowerCase().contains(_searchQuery) || 
+               (event.panelists?.any((p) => p.toLowerCase().contains(_searchQuery)) ?? false)),
+          tilePadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          title: const Text(
+            'PANEL DISCUSSION',
+            style: TextStyle(
+              color: Colors.indigo,
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1,
+            ),
+          ),
+          subtitle: Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Text(
+              event.title,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF1A237E), height: 1.2),
+            ),
+          ),
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.indigo.withOpacity(0.05),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('PANEL MEMBERS', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.indigo)),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: (event.panelists ?? []).map((panelist) => Chip(
+                        label: Text(panelist, style: const TextStyle(fontSize: 12)),
+                        backgroundColor: Colors.white,
+                        side: BorderSide(color: Colors.indigo.withOpacity(0.2)),
+                      )).toList(),
+                    ),
+                    const SizedBox(height: 15),
+                    const Divider(height: 1, color: Colors.black12),
+                    const SizedBox(height: 15),
+                    if (event.chair != null) ...[
+                      _buildIconDetail(Icons.person_outline, 'Chair: ${event.chair}'),
+                      const SizedBox(height: 8),
+                    ],
+                    if (event.moderator != null) ...[
+                      _buildIconDetail(Icons.record_voice_over_outlined, 'Moderator: ${event.moderator}'),
+                      const SizedBox(height: 8),
+                    ],
+                    Row(
+                      children: [
+                        Expanded(child: _buildIconDetail(Icons.location_on_outlined, event.venue)),
+                        const SizedBox(width: 10),
+                        _buildIconDetail(Icons.access_time, '${event.startTime} - ${event.endTime}'),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGenericSessionCard(EventModel event) {
+    Color themeColor = event.type == 'online_session' ? Colors.blue : Colors.teal;
+    return Container(
+      key: ValueKey('generic_${event.id}'),
+      margin: const EdgeInsets.only(bottom: 20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(25),
+        border: Border.all(color: themeColor.withOpacity(0.3), width: 1.5),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(color: themeColor.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+                  child: Text(
+                    event.type.toUpperCase().replaceAll('_', ' '),
+                    style: TextStyle(color: themeColor, fontSize: 10, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  '${event.startTime} - ${event.endTime}',
+                  style: TextStyle(color: Colors.grey.shade600, fontSize: 12, fontWeight: FontWeight.w600),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              event.title,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF1A1A1A)),
+            ),
+            if (event.speaker != null) ...[
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  const Icon(Icons.person_outline, size: 16, color: Colors.grey),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(event.speaker!, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500))),
+                ],
+              ),
+            ],
+            const SizedBox(height: 12),
+            const Divider(height: 1, color: Colors.black12),
+            const SizedBox(height: 12),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(child: _buildIconDetail(Icons.location_on_outlined, event.venue)),
+                const SizedBox(width: 10),
+                if (event.chair != null)
+                  Flexible(child: _buildIconDetail(Icons.assignment_ind_outlined, 'Coord: ${event.chair}')),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildIconDetail(IconData icon, String text) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 16, color: Colors.grey.shade600),
+        const SizedBox(width: 5),
+        Flexible(child: Text(text, style: TextStyle(color: Colors.grey.shade700, fontSize: 13))),
+      ],
     );
   }
 
@@ -572,6 +758,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Color(0xFF455A64)),
             ),
           ),
+          const SizedBox(width: 10),
           Text(
             event.startTime,
             style: TextStyle(color: Colors.grey.shade500, fontSize: 14, fontWeight: FontWeight.w500),

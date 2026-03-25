@@ -15,11 +15,11 @@ class FeedbackScreen extends StatefulWidget {
 }
 
 class _FeedbackScreenState extends State<FeedbackScreen> {
-  double _ratingOverall = 4.0;
-  double _ratingOrganization = 4.0;
-  double _ratingTechnical = 4.0;
-  double _ratingVenue = 4.0;
-  double _ratingCommunication = 4.0;
+  double _ratingOverall = 5.0;
+  double _ratingTechnicalContent = 5.0;
+  double _ratingOrganization = 5.0;
+  double _ratingHospitality = 5.0;
+  double _ratingNetworking = 5.0;
   
   final _commentsController = TextEditingController();
   bool _isSubmitting = false;
@@ -58,45 +58,45 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Please share your thoughts on the IC-SMART 2026 Conference sessions.',
+                      'Please share your thoughts on the IC-SMART 2026 Conference.',
                       style: TextStyle(fontSize: 14, color: Colors.white.withOpacity(0.9)),
                     ),
                     const SizedBox(height: 25),
                     
                     _buildSliderCard(
-                      title: 'OVERALL EXPERIENCE',
-                      question: 'How would you rate your overall experience?',
+                      title: '1. OVERALL EXPERIENCE',
+                      question: 'How would you rate your overall experience at IC-SMART 2026?',
                       value: _ratingOverall,
                       onChanged: (val) => setState(() => _ratingOverall = val),
                     ),
                     _buildSliderCard(
-                      title: 'ORGANIZATION',
-                      question: 'How would you rate the event organization?',
+                      title: '2. QUALITY OF TECHNICAL CONTENT',
+                      question: 'How do you rate the quality and relevance of technical sessions, keynote talks, and panel discussions?',
+                      value: _ratingTechnicalContent,
+                      onChanged: (val) => setState(() => _ratingTechnicalContent = val),
+                    ),
+                    _buildSliderCard(
+                      title: '3. ORGANIZATION & COORDINATION',
+                      question: 'How satisfied are you with the overall organization, scheduling, and coordination of the conference?',
                       value: _ratingOrganization,
                       onChanged: (val) => setState(() => _ratingOrganization = val),
                     ),
                     _buildSliderCard(
-                      title: 'TECHNICAL SESSIONS',
-                      question: 'How satisfied were you with the technical sessions?',
-                      value: _ratingTechnical,
-                      onChanged: (val) => setState(() => _ratingTechnical = val),
+                      title: '4. HOSPITALITY & SUPPORT',
+                      question: 'How would you rate the hospitality, accommodation (if applicable), and support provided during the conference?',
+                      value: _ratingHospitality,
+                      onChanged: (val) => setState(() => _ratingHospitality = val),
                     ),
                     _buildSliderCard(
-                      title: 'VENUE & FACILITIES',
-                      question: 'How satisfied were you with the venue facilities?',
-                      value: _ratingVenue,
-                      onChanged: (val) => setState(() => _ratingVenue = val),
-                    ),
-                    _buildSliderCard(
-                      title: 'COMMUNICATION',
-                      question: 'Rate the communication & coordination quality.',
-                      value: _ratingCommunication,
-                      onChanged: (val) => setState(() => _ratingCommunication = val),
+                      title: '5. LEARNING & NETWORKING OPPORTUNITIES',
+                      question: 'How effectively did the conference provide opportunities for learning, interaction, and networking?',
+                      value: _ratingNetworking,
+                      onChanged: (val) => setState(() => _ratingNetworking = val),
                     ),
 
                     _buildCommentsInput(
                       title: 'ADDITIONAL COMMENTS',
-                      question: 'What was your favorite session and why?',
+                      question: 'Any other suggestions or comments for us?',
                       controller: _commentsController,
                       hint: 'Share your thoughts here...',
                     ),
@@ -260,10 +260,10 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
         userName: user.name,
         role: user.role,
         ratingOverall: _ratingOverall.round(),
+        ratingTechnicalContent: _ratingTechnicalContent.round(),
         ratingOrganization: _ratingOrganization.round(),
-        ratingTechnicalSessions: _ratingTechnical.round(),
-        ratingVenue: _ratingVenue.round(),
-        ratingCommunication: _ratingCommunication.round(),
+        ratingHospitality: _ratingHospitality.round(),
+        ratingNetworking: _ratingNetworking.round(),
         comments: _commentsController.text,
         submittedAt: DateTime.now(),
       );

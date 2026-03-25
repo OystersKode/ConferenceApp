@@ -5,10 +5,10 @@ class FeedbackModel {
   final String userName;
   final String role;
   final int ratingOverall;
+  final int ratingTechnicalContent;
   final int ratingOrganization;
-  final int ratingTechnicalSessions;
-  final int ratingVenue;
-  final int ratingCommunication;
+  final int ratingHospitality;
+  final int ratingNetworking;
   final String comments;
   final DateTime submittedAt;
 
@@ -17,10 +17,10 @@ class FeedbackModel {
     required this.userName,
     required this.role,
     required this.ratingOverall,
+    required this.ratingTechnicalContent,
     required this.ratingOrganization,
-    required this.ratingTechnicalSessions,
-    required this.ratingVenue,
-    required this.ratingCommunication,
+    required this.ratingHospitality,
+    required this.ratingNetworking,
     required this.comments,
     required this.submittedAt,
   });
@@ -31,10 +31,10 @@ class FeedbackModel {
       'userName': userName,
       'role': role,
       'ratingOverall': ratingOverall,
+      'ratingTechnicalContent': ratingTechnicalContent,
       'ratingOrganization': ratingOrganization,
-      'ratingTechnicalSessions': ratingTechnicalSessions,
-      'ratingVenue': ratingVenue,
-      'ratingCommunication': ratingCommunication,
+      'ratingHospitality': ratingHospitality,
+      'ratingNetworking': ratingNetworking,
       'comments': comments,
       'submittedAt': Timestamp.fromDate(submittedAt),
     };
@@ -46,10 +46,10 @@ class FeedbackModel {
       userName: map['userName'] ?? '',
       role: map['role'] ?? '',
       ratingOverall: map['ratingOverall'] ?? 0,
+      ratingTechnicalContent: map['ratingTechnicalContent'] ?? 0,
       ratingOrganization: map['ratingOrganization'] ?? 0,
-      ratingTechnicalSessions: map['ratingTechnicalSessions'] ?? 0,
-      ratingVenue: map['ratingVenue'] ?? 0,
-      ratingCommunication: map['ratingCommunication'] ?? 0,
+      ratingHospitality: map['ratingHospitality'] ?? 0,
+      ratingNetworking: map['ratingNetworking'] ?? 0,
       comments: map['comments'] ?? '',
       submittedAt: (map['submittedAt'] as Timestamp).toDate(),
     );
