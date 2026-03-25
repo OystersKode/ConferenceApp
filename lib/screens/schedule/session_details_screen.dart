@@ -85,22 +85,14 @@ class SessionDetailsScreen extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              _buildHeaderInfo(Icons.access_time, '${session.startTime} - ${session.endTime}'),
-              const SizedBox(width: 20),
-              _buildHeaderInfo(Icons.location_on_outlined, session.venue),
-            ],
-          ),
+          const SizedBox(height: 20),
+          _buildHeaderInfo(Icons.access_time, '${session.startTime} - ${session.endTime}'),
           const SizedBox(height: 12),
-          Row(
-            children: [
-              _buildHeaderInfo(Icons.person_outline, 'Chair: ${session.chairs.join(", ")}'),
-              const SizedBox(width: 20),
-              _buildHeaderInfo(Icons.online_prediction, session.mode.toUpperCase()),
-            ],
-          ),
+          _buildHeaderInfo(Icons.location_on_outlined, session.venue),
+          const SizedBox(height: 12),
+          _buildHeaderInfo(Icons.person_outline, 'Chair: ${session.chairs.join(", ")}'),
+          const SizedBox(height: 12),
+          _buildHeaderInfo(Icons.online_prediction, session.mode.toUpperCase()),
         ],
       ),
     );
@@ -108,12 +100,16 @@ class SessionDetailsScreen extends StatelessWidget {
 
   Widget _buildHeaderInfo(IconData icon, String text) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Icon(icon, color: Colors.white70, size: 16),
-        const SizedBox(width: 6),
-        Text(
-          text,
-          style: const TextStyle(color: Colors.white70, fontSize: 13),
+        const SizedBox(width: 8),
+        Flexible(
+          child: Text(
+            text,
+            style: const TextStyle(color: Colors.white70, fontSize: 13, height: 1.2),
+          ),
         ),
       ],
     );
