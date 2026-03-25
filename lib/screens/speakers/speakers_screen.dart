@@ -410,7 +410,6 @@ class _SpeakersScreenState extends State<SpeakersScreen> {
               ],
             ),
           ),
-          const Icon(Icons.chevron_right, color: Colors.black26),
         ],
       ),
     );
