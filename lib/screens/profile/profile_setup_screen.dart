@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -8,14 +8,23 @@ import '../../providers/auth_provider.dart';
 import '../../services/cloudinary_service.dart';
 import '../../services/auth_service.dart';
 
-class ProfileSetupScreen extends StatefulWidget {
+class ProfileSetupScreen extends StatelessWidget {
   const ProfileSetupScreen({super.key});
 
   @override
-  State<ProfileSetupScreen> createState() => _ProfileSetupScreenState();
+  Widget build(BuildContext context) {
+    return const ProfileSetupContent();
+  }
 }
 
-class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
+class ProfileSetupContent extends StatefulWidget {
+  const ProfileSetupContent({super.key});
+
+  @override
+  State<ProfileSetupContent> createState() => _ProfileSetupContentState();
+}
+
+class _ProfileSetupContentState extends State<ProfileSetupContent> {
   final _formKey = GlobalKey<FormState>();
   final _phoneController = TextEditingController();
   final _aboutController = TextEditingController();
@@ -24,7 +33,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   final _organizationController = TextEditingController();
   final List<TextEditingController> _authorControllers = [TextEditingController()];
   
-  File? _profileImage;
+  Uint8List? _profileImageBytes;
   bool _isSaving = false;
   final CloudinaryService _cloudinaryService = CloudinaryService();
 
@@ -45,8 +54,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery, imageQuality: 70);
     if (image != null) {
+      final bytes = await image.readAsBytes();
       setState(() {
-        _profileImage = File(image.path);
+        _profileImageBytes = bytes;
       });
     }
   }
@@ -65,9 +75,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
     try {
       String? imageUrl = user.profilePhoto;
-      if (_profileImage != null) {
-        // Note: If Cloudinary credentials are not set, this will return null
-        imageUrl = await _cloudinaryService.uploadProfilePhoto(_profileImage!, user.uid) ?? user.profilePhoto;
+      if (_profileImageBytes != null) {
+        imageUrl = await _cloudinaryService.uploadProfilePhoto(_profileImageBytes!, user.uid) ?? user.profilePhoto;
       }
 
       final profileData = {
@@ -125,17 +134,16 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Profile Photo
               Center(
                 child: Stack(
                   children: [
                     CircleAvatar(
                       radius: 60,
                       backgroundColor: Colors.grey[200],
-                      backgroundImage: _profileImage != null 
-                          ? FileImage(_profileImage!) 
+                      backgroundImage: _profileImageBytes != null 
+                          ? MemoryImage(_profileImageBytes!) 
                           : (user.profilePhoto.isNotEmpty ? NetworkImage(user.profilePhoto) : null) as ImageProvider?,
-                      child: _profileImage == null && user.profilePhoto.isEmpty
+                      child: _profileImageBytes == null && user.profilePhoto.isEmpty
                           ? const Icon(Icons.person, size: 60, color: Colors.grey)
                           : null,
                     ),
@@ -155,10 +163,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 ),
               ),
               const SizedBox(height: 32),
-
               const Text('Personal Information', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
-
               _buildTextField(
                 controller: _phoneController,
                 label: 'Phone Number',
@@ -166,28 +172,24 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 icon: Icons.phone_outlined,
                 keyboardType: TextInputType.phone,
               ),
-
               _buildTextField(
                 controller: _countryController,
                 label: 'Country',
-                hint: 'e.g. USA',
+                hint: 'e.g. India',
                 icon: Icons.public_outlined,
               ),
-
               _buildTextField(
                 controller: _designationController,
                 label: 'Designation',
                 hint: 'e.g. Professor / Research Scholar',
                 icon: Icons.work_outline,
               ),
-
               _buildTextField(
                 controller: _organizationController,
                 label: 'Company/Institute',
-                hint: 'e.g. Stanford University',
+                hint: 'e.g. RIT, Sangli',
                 icon: Icons.business_outlined,
               ),
-
               _buildTextField(
                 controller: _aboutController,
                 label: 'About Me',
@@ -200,13 +202,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                   return null;
                 },
               ),
-
               if (user.role == 'presenter') ...[
                 const SizedBox(height: 32),
                 const Text('Paper Details', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 16),
-
-                // Paper Title (Read-only)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -220,16 +219,11 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: Colors.grey[300]!),
                       ),
-                      child: Text(
-                        user.paperTitle ?? 'N/A',
-                        style: const TextStyle(color: Colors.black87),
-                      ),
+                      child: Text(user.paperTitle ?? 'N/A', style: const TextStyle(color: Colors.black87)),
                     ),
                   ],
                 ),
                 const SizedBox(height: 24),
-
-                // Corresponding Authors
                 const Text('Corresponding Authors', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
                 const SizedBox(height: 8),
                 ..._authorControllers.asMap().entries.map((entry) {
@@ -263,9 +257,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                   label: const Text('Add Corresponding Author'),
                 ),
               ],
-
               const SizedBox(height: 40),
-
               SizedBox(
                 width: double.infinity,
                 height: 56,
@@ -315,14 +307,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
               prefixIcon: Icon(icon, size: 20),
               filled: true,
               fillColor: Colors.white,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.grey[300]!),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.grey[300]!),
-              ),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey[300]!)),
+              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey[300]!)),
             ),
           ),
         ],

@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
@@ -24,7 +24,7 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   bool _isEditing = false;
   bool _isSaving = false;
-  File? _imageFile;
+  Uint8List? _imageBytes;
   
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
@@ -62,8 +62,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery, imageQuality: 70);
     if (pickedFile != null) {
+      final bytes = await pickedFile.readAsBytes();
       setState(() {
-        _imageFile = File(pickedFile.path);
+        _imageBytes = bytes;
       });
     }
   }
@@ -77,8 +78,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     try {
       String? imageUrl = user.profilePhoto;
-      if (_imageFile != null) {
-        imageUrl = await CloudinaryService().uploadProfilePhoto(_imageFile!, user.uid) ?? user.profilePhoto;
+      if (_imageBytes != null) {
+        imageUrl = await CloudinaryService().uploadProfilePhoto(_imageBytes!, user.uid) ?? user.profilePhoto;
       }
 
       final updatedData = {
@@ -96,7 +97,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       
       setState(() {
         _isEditing = false;
-        _imageFile = null;
+        _imageBytes = null;
       });
       
       if (mounted) {
@@ -172,7 +173,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         icon: const Icon(Icons.close, color: Colors.white),
                         onPressed: () => setState(() {
                           _isEditing = false;
-                          _imageFile = null;
+                          _imageBytes = null;
                           // Reset controllers
                           _nameController.text = user.name;
                           _phoneController.text = user.phone;
@@ -206,13 +207,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 shape: BoxShape.circle,
               ),
               child: CircleAvatar(
-                key: ValueKey(_imageFile?.path ?? user.profilePhoto),
                 radius: 40,
                 backgroundColor: Colors.white24,
-                backgroundImage: _imageFile != null 
-                    ? FileImage(_imageFile!) 
+                backgroundImage: _imageBytes != null 
+                    ? MemoryImage(_imageBytes!) 
                     : (user.profilePhoto.isNotEmpty ? NetworkImage(user.profilePhoto) : null) as ImageProvider?,
-                child: _imageFile == null && user.profilePhoto.isEmpty
+                child: _imageBytes == null && user.profilePhoto.isEmpty
                     ? const Icon(Icons.person, color: Colors.white, size: 40)
                     : _isEditing ? const Icon(Icons.camera_alt, color: Colors.white70, size: 20) : null,
               ),

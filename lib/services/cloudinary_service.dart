@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:cloudinary_public/cloudinary_public.dart';
 
 class CloudinaryService {
@@ -11,15 +11,18 @@ class CloudinaryService {
     _cloudinary = CloudinaryPublic(_cloudName, _uploadPreset, cache: false);
   }
 
-  /// Uploads an image (profile photo) to Cloudinary
-  Future<String?> uploadProfilePhoto(File imageFile, String userId) async {
+  /// Uploads an image (profile photo) to Cloudinary using bytes for web compatibility
+  Future<String?> uploadProfilePhoto(Uint8List bytes, String userId) async {
     try {
-      // Using a unique publicId by appending timestamp to force a new URL/prevent overwriting cache issues
       final String uniquePublicId = 'user_${userId}_${DateTime.now().millisecondsSinceEpoch}';
       
+      // CloudinaryPublic uses fromByteData for raw bytes
+      final byteData = ByteData.view(bytes.buffer);
+
       CloudinaryResponse response = await _cloudinary.uploadFile(
-        CloudinaryFile.fromFile(
-          imageFile.path,
+        CloudinaryFile.fromByteData(
+          byteData,
+          identifier: 'profile_photo_$userId',
           folder: 'profile_photos',
           publicId: uniquePublicId,
           resourceType: CloudinaryResourceType.Image,
@@ -34,11 +37,14 @@ class CloudinaryService {
   }
 
   /// Uploads a resource (PPT, PDF) to Cloudinary
-  Future<String?> uploadResource(File file, String fileName) async {
+  Future<String?> uploadResource(Uint8List bytes, String fileName) async {
     try {
+      final byteData = ByteData.view(bytes.buffer);
+      
       CloudinaryResponse response = await _cloudinary.uploadFile(
-        CloudinaryFile.fromFile(
-          file.path,
+        CloudinaryFile.fromByteData(
+          byteData,
+          identifier: fileName,
           folder: 'conference_resources',
           publicId: fileName,
           resourceType: CloudinaryResourceType.Auto,
