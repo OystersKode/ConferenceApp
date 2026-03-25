@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'dart:async';
 import '../../core/constants/app_colors.dart';
 import '../../widgets/bottom_navbar.dart';
 import '../../services/firestore_service.dart';
@@ -8,6 +9,7 @@ import '../../models/day_model.dart';
 import '../../models/event_model.dart';
 import '../../models/technical_session_model.dart';
 import '../../models/keynote_model.dart';
+import '../../models/paper_model.dart';
 
 class ScheduleScreen extends StatefulWidget {
   const ScheduleScreen({super.key});
@@ -19,16 +21,28 @@ class ScheduleScreen extends StatefulWidget {
 class _ScheduleScreenState extends State<ScheduleScreen> {
   String? _selectedDayId;
   final FirestoreService _firestoreService = FirestoreService();
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
   
   late Stream<List<DayModel>> _daysStream;
   Stream<List<EventModel>>? _eventsStream;
   Stream<List<TechnicalSessionModel>>? _sessionsStream;
   Stream<List<KeynoteModel>>? _keynotesStream;
 
+  // Cache for papers to allow searching within sessions
+  final Map<String, List<PaperModel>> _sessionPapersCache = {};
+  bool _isSearchingPapers = false;
+
   @override
   void initState() {
     super.initState();
     _daysStream = _firestoreService.getConferenceDays();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   void _updateDayStreams(String dayId) {
@@ -38,7 +52,31 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       _eventsStream = _firestoreService.getDayEvents(dayId);
       _sessionsStream = _firestoreService.getDayTechnicalSessions(dayId);
       _keynotesStream = _firestoreService.getDayKeynotes(dayId);
+      _sessionPapersCache.clear(); // Clear cache for new day
     });
+  }
+
+  Future<void> _prefetchPapers(List<TechnicalSessionModel> sessions, String dayId) async {
+    if (_searchQuery.isEmpty || _isSearchingPapers) return;
+    
+    bool needsFetch = false;
+    for (var session in sessions) {
+      if (!_sessionPapersCache.containsKey(session.id)) {
+        needsFetch = true;
+        break;
+      }
+    }
+
+    if (needsFetch) {
+      _isSearchingPapers = true;
+      for (var session in sessions) {
+        if (!_sessionPapersCache.containsKey(session.id)) {
+          final papers = await _firestoreService.getSessionPapers(dayId, session.id).first;
+          _sessionPapersCache[session.id] = papers;
+        }
+      }
+      if (mounted) setState(() => _isSearchingPapers = false);
+    }
   }
 
   @override
@@ -237,6 +275,49 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     );
   }
 
+  Widget _buildSearchBar() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 25),
+      padding: const EdgeInsets.symmetric(horizontal: 15),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: TextField(
+        controller: _searchController,
+        onChanged: (value) {
+          setState(() {
+            _searchQuery = value.toLowerCase();
+          });
+        },
+        decoration: InputDecoration(
+          hintText: 'Search by author, paper, speaker, or track...',
+          hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
+          prefixIcon: const Icon(Icons.search, color: AppColors.primary),
+          border: InputBorder.none,
+          suffixIcon: _searchQuery.isNotEmpty
+              ? IconButton(
+                  icon: const Icon(Icons.clear, size: 18),
+                  onPressed: () {
+                    _searchController.clear();
+                    setState(() {
+                      _searchQuery = '';
+                    });
+                  },
+                )
+              : null,
+        ),
+      ),
+    );
+  }
+
   Widget _buildDayContent(DayModel day) {
     return StreamBuilder<List<EventModel>>(
       stream: _eventsStream,
@@ -261,15 +342,64 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   return const Center(child: Text('No events scheduled for this day.'));
                 }
 
+                // Trigger pre-fetching papers if searching
+                if (_searchQuery.isNotEmpty) {
+                  _prefetchPapers(sessions, day.id);
+                }
+
+                // Filtering logic for events
+                final filteredEvents = events.where((e) {
+                  if (_searchQuery.isEmpty) return true;
+                  return e.title.toLowerCase().contains(_searchQuery) ||
+                         (e.speaker?.toLowerCase().contains(_searchQuery) ?? false) ||
+                         (e.organization?.toLowerCase().contains(_searchQuery) ?? false) ||
+                         (e.chair?.toLowerCase().contains(_searchQuery) ?? false) ||
+                         (e.venue.toLowerCase().contains(_searchQuery));
+                }).toList();
+
+                // Filtering logic for sessions (searching in session details AND papers)
+                final filteredSessions = sessions.where((s) {
+                  if (_searchQuery.isEmpty) return true;
+                  
+                  // Check session details
+                  bool matchesSession = s.title.toLowerCase().contains(_searchQuery) ||
+                                       s.chairs.any((c) => c.toLowerCase().contains(_searchQuery)) ||
+                                       s.venue.toLowerCase().contains(_searchQuery);
+                  
+                  if (matchesSession) return true;
+
+                  // Check cached papers for this session
+                  final papers = _sessionPapersCache[s.id];
+                  if (papers != null) {
+                    return papers.any((p) => 
+                      p.title.toLowerCase().contains(_searchQuery) ||
+                      p.correspondingAuthors.any((a) => a.toLowerCase().contains(_searchQuery))
+                    );
+                  }
+                  
+                  return false;
+                }).toList();
+
                 return Column(
                   children: [
-                    ...events.map((event) => _buildTimelineItem(event, day)).toList(),
-                    if (sessions.isNotEmpty) ...[
+                    _buildSearchBar(),
+                    if (_isSearchingPapers)
+                      const Padding(
+                        padding: EdgeInsets.only(bottom: 10),
+                        child: Text('Searching across sessions...', style: TextStyle(fontSize: 10, color: Colors.grey)),
+                      ),
+                    ...filteredEvents.map((event) => _buildTimelineItem(event, day)).toList(),
+                    if (filteredSessions.isNotEmpty) ...[
                       const SizedBox(height: 30),
                       _buildFeaturedTracksHeader(),
                       const SizedBox(height: 15),
-                      _buildFeaturedTracksList(sessions, keynotes, day.id),
+                      _buildFeaturedTracksList(filteredSessions, keynotes, day.id),
                     ],
+                    if (_searchQuery.isNotEmpty && filteredEvents.isEmpty && filteredSessions.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.only(top: 40),
+                        child: Text('No results found for your search.', style: TextStyle(color: Colors.grey)),
+                      ),
                     const SizedBox(height: 100),
                   ],
                 );
@@ -345,6 +475,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
         child: ExpansionTile(
           key: PageStorageKey(event.id),
+          initiallyExpanded: _searchQuery.isNotEmpty && 
+              (event.title.toLowerCase().contains(_searchQuery) || 
+               (event.speaker?.toLowerCase().contains(_searchQuery) ?? false)),
           tilePadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           title: Text(
             event.type.toUpperCase().replaceAll('_', ' '),
