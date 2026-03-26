@@ -38,7 +38,7 @@ class _SignUpContentState extends State<_SignUpContent> {
 
   final List<String> _delegateTypes = [
     'Industry delegate',
-    'Invited deligate',
+    'Invited delegate',
     'PG/PhD scholar',
   ];
 

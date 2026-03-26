@@ -413,6 +413,7 @@ class EventDetailsScreen extends StatelessWidget {
           _buildCardHeader(Icons.groups, 'Key Organizers'),
           const SizedBox(height: 16),
           _buildOrganizerItem('Chief Patron', 'Hon. Mr. BhagatSingh Patil', 'Chairman, BOG, RIT'),
+          _buildOrganizerItem('Patron', 'Hon. Dr. P. V. Kadole', 'Director, RIT'),
           _buildOrganizerItem('Patron', 'Hon. Prin. R. D. Sawant', 'Secretary, K. E. Society'),
           _buildOrganizerItem('Convener', 'Dr. Vijay H. Kalmani', 'Professor, CSE'),
           _buildOrganizerItem('Organizing Secretary', 'Dr. Ramchandra G. Desavale', 'Professor, Mechatronics', isLast: true),
