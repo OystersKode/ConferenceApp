@@ -20,80 +20,91 @@ class SessionDetailsScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
-      appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        elevation: 0,
-        title: Text(
-          'Session ${session.sessionNumber.toString().padLeft(2, '0')}',
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: Column(
-        children: [
-          _buildSessionHeader(),
-          Expanded(
-            child: StreamBuilder<List<PaperModel>>(
-              stream: firestoreService.getSessionPapers(dayId, session.id),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(child: Text('No papers listed for this session.'));
-                }
+      body: StreamBuilder<List<PaperModel>>(
+        stream: firestoreService.getSessionPapers(dayId, session.id),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          
+          final papers = snapshot.data ?? [];
 
-                final papers = snapshot.data!;
-
-                return ListView.builder(
-                  padding: const EdgeInsets.all(20),
-                  itemCount: papers.length,
-                  itemBuilder: (context, index) {
-                    return _buildPaperCard(papers[index]);
-                  },
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSessionHeader() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: const BoxDecoration(
-        color: AppColors.primary,
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(30),
-          bottomRight: Radius.circular(30),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            session.title,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 20),
-          _buildHeaderInfo(Icons.access_time, '${session.startTime} - ${session.endTime}'),
-          const SizedBox(height: 12),
-          _buildHeaderInfo(Icons.location_on_outlined, session.venue),
-          const SizedBox(height: 12),
-          _buildHeaderInfo(Icons.person_outline, 'Chair: ${session.chairs.join(", ")}'),
-          const SizedBox(height: 12),
-          _buildHeaderInfo(Icons.online_prediction, session.mode.toUpperCase()),
-        ],
+          return CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                expandedHeight: 320,
+                pinned: true,
+                backgroundColor: AppColors.primary,
+                elevation: 0,
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
+                  onPressed: () => Navigator.pop(context),
+                ),
+                title: Text(
+                  'Session ${session.sessionNumber.toString().padLeft(2, '0')}',
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+                flexibleSpace: FlexibleSpaceBar(
+                  background: Container(
+                    color: AppColors.primary,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 100, left: 24, right: 24, bottom: 24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            session.title,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          _buildHeaderInfo(Icons.access_time, '${session.startTime} - ${session.endTime}'),
+                          const SizedBox(height: 12),
+                          _buildHeaderInfo(Icons.location_on_outlined, session.venue),
+                          const SizedBox(height: 12),
+                          _buildHeaderInfo(Icons.person_outline, 'Chair: ${session.chairs.join(", ")}'),
+                          const SizedBox(height: 12),
+                          _buildHeaderInfo(Icons.online_prediction, session.mode.toUpperCase()),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                bottom: PreferredSize(
+                  preferredSize: const Size.fromHeight(30),
+                  child: Container(
+                    height: 30,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFF8F9FA),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(30),
+                        topRight: Radius.circular(30),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              if (papers.isEmpty)
+                const SliverFillRemaining(
+                  child: Center(child: Text('No papers listed for this session.')),
+                )
+              else
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) => _buildPaperCard(papers[index]),
+                      childCount: papers.length,
+                    ),
+                  ),
+                ),
+              const SliverToBoxAdapter(child: SizedBox(height: 20)),
+            ],
+          );
+        },
       ),
     );
   }

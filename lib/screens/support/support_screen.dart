@@ -32,7 +32,7 @@ class SupportScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildSectionHeader('CONFERENCE SUPPORT'),
+                    _buildSectionHeader('CONFERENCE SUPPORT', isWhite: true),
                     const SizedBox(height: 15),
                     _buildSupportCard(
                       name: 'Prof. Dr. V. H. Kalmani',
@@ -144,24 +144,24 @@ class SupportScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionHeader(String title) {
+  Widget _buildSectionHeader(String title, {bool isWhite = false}) {
     return Row(
       children: [
         Container(
           width: 4,
           height: 16,
           decoration: BoxDecoration(
-            color: AppColors.primary,
+            color: isWhite ? Colors.white70 : AppColors.primary,
             borderRadius: BorderRadius.circular(2),
           ),
         ),
         const SizedBox(width: 8),
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w900,
-            color: Color(0xFF708090),
+            color: isWhite ? Colors.white.withOpacity(0.8) : const Color(0xFF708090),
             letterSpacing: 1.2,
           ),
         ),
