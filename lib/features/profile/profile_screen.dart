@@ -174,7 +174,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         onPressed: () => setState(() {
                           _isEditing = false;
                           _imageBytes = null;
-                          // Reset controllers
                           _nameController.text = user.name;
                           _phoneController.text = user.phone;
                           _countryController.text = user.country;
@@ -276,6 +275,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _buildInfoCard([
             _buildInfoItem(Icons.email_outlined, 'EMAIL ADDRESS', user.email, editable: false),
             const Divider(),
+            if (user.role == 'delegate' && user.delegateType != null) ...[
+              _buildInfoItem(Icons.category_outlined, 'DELEGATE TYPE', user.delegateType!, editable: false),
+              const Divider(),
+            ],
             _buildInfoItem(Icons.phone_outlined, 'PHONE NUMBER', user.phone, controller: _phoneController),
             const Divider(),
             _buildInfoItem(Icons.language, 'COUNTRY', user.country, controller: _countryController),

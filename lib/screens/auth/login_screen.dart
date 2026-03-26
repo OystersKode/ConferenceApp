@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../core/constants/app_colors.dart';
 import '../../providers/auth_provider.dart';
 
@@ -48,6 +49,52 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  void _showForgotPasswordDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Contact Admin'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Oyster Kode Club'),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Text('Contact:-'),
+                GestureDetector(
+                  onTap: () async {
+                    final Uri emailLaunchUri = Uri(
+                      scheme: 'mailto',
+                      path: 'icsmart.okc@gmail.com',
+                    );
+                    if (!await launchUrl(emailLaunchUri)) {
+                      throw Exception('Could not launch email');
+                    }
+                  },
+                  child: const Text(
+                    'icsmart.okc@gmail.com',
+                    style: TextStyle(
+                      color: AppColors.primary,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     String? message = widget.successMessage ?? (GoRouterState.of(context).extra as String?);
@@ -75,7 +122,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       children: [
                         // App Bar Area
                         const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 20.0),
+                          padding: EdgeInsets.symmetric(vertical: 10.0),
                           child: Text(
                             'IC-SMART 2026',
                             textAlign: TextAlign.center,
@@ -87,25 +134,25 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
 
-                        const SizedBox(height: 40),
+                        const SizedBox(height: 10),
 
                         // Logo Section
                         Container(
                           width: 100,
                           height: 100,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.15),
-                            borderRadius: BorderRadius.circular(25),
-                            border: Border.all(color: Colors.white.withOpacity(0.2)),
+                          decoration: const BoxDecoration(
+                            color: Colors.transparent,
                           ),
-                          child: const Icon(
-                            Icons.school_outlined,
-                            color: Colors.white,
-                            size: 60,
+                          child: Padding(
+                            padding: const EdgeInsets.all(5.0),
+                            child: Image.asset(
+                              'assets/images/logo.png',
+                              fit: BoxFit.contain,
+                            ),
                           ),
                         ),
 
-                        const SizedBox(height: 25),
+                        const SizedBox(height: 15),
 
                         const Text(
                           'Login',
@@ -116,7 +163,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
 
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 5),
 
                         const Text(
                           'Welcome to IC-SMART 2026',
@@ -126,7 +173,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
 
-                        const SizedBox(height: 50),
+                        const SizedBox(height: 30),
 
                         // Email Input
                         _buildInputField(
@@ -151,13 +198,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           validator: (value) => (value == null || value.isEmpty) ? 'Please enter password' : null,
                         ),
 
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 5),
                         Align(
                           alignment: Alignment.centerRight,
                           child: TextButton(
-                            onPressed: () {
-                              // TODO: Implement Forgot Password
-                            },
+                            onPressed: _showForgotPasswordDialog,
                             child: const Text(
                               'Forgot Password?',
                               style: TextStyle(color: Colors.white70, fontSize: 12),
@@ -165,7 +210,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
 
-                        const SizedBox(height: 25),
+                        const SizedBox(height: 20),
 
                         // Log In Button
                         Consumer<AuthProvider>(
@@ -194,7 +239,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           },
                         ),
 
-                        const SizedBox(height: 40),
+                        const SizedBox(height: 30),
 
                         // Divider
                         Row(
@@ -211,7 +256,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ],
                         ),
 
-                        const SizedBox(height: 40),
+                        const SizedBox(height: 30),
 
                         // Sign Up Link
                         Row(

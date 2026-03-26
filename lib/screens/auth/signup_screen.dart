@@ -30,10 +30,17 @@ class _SignUpContentState extends State<_SignUpContent> {
   final _paperTitleController = TextEditingController();
 
   String _selectedRole = 'delegate'; // Default role
+  String? _selectedDelegateType; // For delegate sub-type
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
   String? _successMessage;
   bool _isLoading = false;
+
+  final List<String> _delegateTypes = [
+    'Industry delegate',
+    'Invited deligate',
+    'PG/PhD scholar',
+  ];
 
   @override
   void dispose() {
@@ -52,13 +59,12 @@ class _SignUpContentState extends State<_SignUpContent> {
     setState(() => _isLoading = true);
 
     try {
-      // Call AuthService directly to avoid triggering AuthProvider's notifyListeners()
-      // which causes GoRouter to re-evaluate redirects and potentially move away from this page.
       final authService = AuthService();
       await authService.submitSignupRequest(
         name: _nameController.text.trim(),
         email: _emailController.text.trim(),
         role: _selectedRole,
+        delegateType: _selectedRole == 'delegate' ? _selectedDelegateType : null,
         password: _passwordController.text,
         paperTitle: _selectedRole == 'presenter' ? _paperTitleController.text.trim() : null,
       );
@@ -69,7 +75,6 @@ class _SignUpContentState extends State<_SignUpContent> {
           _successMessage = 'Your request has been sent to admin successfully!';
         });
 
-        // Wait for exactly 2 seconds to show the message
         await Future.delayed(const Duration(seconds: 2));
 
         if (mounted) {
@@ -114,9 +119,8 @@ class _SignUpContentState extends State<_SignUpContent> {
                   key: _formKey,
                   child: Column(
                     children: [
-                      // App Bar Area
                       Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 20.0),
+                        padding: const EdgeInsets.symmetric(vertical: 10.0),
                         child: Row(
                           children: [
                             IconButton(
@@ -140,27 +144,22 @@ class _SignUpContentState extends State<_SignUpContent> {
                           ],
                         ),
                       ),
-
-                      const SizedBox(height: 20),
-
-                      // Logo Section
+                      const SizedBox(height: 10),
                       Container(
                         width: 80,
                         height: 80,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: Colors.white.withOpacity(0.2)),
+                        decoration: const BoxDecoration(
+                          color: Colors.transparent,
                         ),
-                        child: const Icon(
-                          Icons.school_outlined,
-                          color: Colors.white,
-                          size: 50,
+                        child: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: Image.asset(
+                            'assets/images/logo.png',
+                            fit: BoxFit.contain,
+                          ),
                         ),
                       ),
-
-                      const SizedBox(height: 20),
-
+                      const SizedBox(height: 15),
                       const Text(
                         'Create Account',
                         style: TextStyle(
@@ -169,15 +168,13 @@ class _SignUpContentState extends State<_SignUpContent> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-
-                      const SizedBox(height: 30),
-
-                      // Role Selection
-                      _buildRoleSelection(),
-
                       const SizedBox(height: 20),
-
-                      // Full Name
+                      _buildRoleSelection(),
+                      const SizedBox(height: 15),
+                      if (_selectedRole == 'delegate') ...[
+                        _buildDelegateTypeDropdown(),
+                        const SizedBox(height: 15),
+                      ],
                       _buildInputField(
                         controller: _nameController,
                         label: 'Full Name',
@@ -185,10 +182,7 @@ class _SignUpContentState extends State<_SignUpContent> {
                         icon: Icons.person_outline,
                         validator: (value) => value == null || value.isEmpty ? 'Please enter your name' : null,
                       ),
-
                       const SizedBox(height: 15),
-
-                      // Email
                       _buildInputField(
                         controller: _emailController,
                         label: 'Email',
@@ -201,10 +195,7 @@ class _SignUpContentState extends State<_SignUpContent> {
                           return null;
                         },
                       ),
-
                       const SizedBox(height: 15),
-
-                      // Password
                       _buildInputField(
                         controller: _passwordController,
                         label: 'Password',
@@ -215,10 +206,7 @@ class _SignUpContentState extends State<_SignUpContent> {
                         onToggleVisibility: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
                         validator: (value) => (value?.length ?? 0) < 6 ? 'Password must be at least 6 characters' : null,
                       ),
-
                       const SizedBox(height: 15),
-
-                      // Confirm Password
                       _buildInputField(
                         controller: _confirmPasswordController,
                         label: 'Confirm Password',
@@ -232,10 +220,8 @@ class _SignUpContentState extends State<_SignUpContent> {
                           return null;
                         },
                       ),
-
                       if (_selectedRole == 'presenter') ...[
                         const SizedBox(height: 15),
-                        // Paper Title
                         _buildInputField(
                           controller: _paperTitleController,
                           label: 'Paper Title',
@@ -246,10 +232,7 @@ class _SignUpContentState extends State<_SignUpContent> {
                               : null,
                         ),
                       ],
-
-                      const SizedBox(height: 30),
-
-                      // Sign Up Button
+                      const SizedBox(height: 25),
                       SizedBox(
                         width: double.infinity,
                         height: 56,
@@ -271,10 +254,7 @@ class _SignUpContentState extends State<_SignUpContent> {
                                 ),
                         ),
                       ),
-
-                      const SizedBox(height: 25),
-
-                      // Login Link
+                      const SizedBox(height: 20),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -291,14 +271,12 @@ class _SignUpContentState extends State<_SignUpContent> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 30),
+                      const SizedBox(height: 20),
                     ],
                   ),
                 ),
               ),
             ),
-
-            // Success Message Notification (Styled like the reference image)
             if (_successMessage != null)
               Positioned(
                 bottom: 50,
@@ -379,7 +357,10 @@ class _SignUpContentState extends State<_SignUpContent> {
   Widget _roleButton(String value, String label, IconData icon) {
     bool isSelected = _selectedRole == value;
     return GestureDetector(
-      onTap: () => setState(() => _selectedRole = value),
+      onTap: () => setState(() {
+        _selectedRole = value;
+        if (value == 'presenter') _selectedDelegateType = null;
+      }),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
@@ -401,6 +382,42 @@ class _SignUpContentState extends State<_SignUpContent> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildDelegateTypeDropdown() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Type of Delegate',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 14),
+        ),
+        const SizedBox(height: 8),
+        DropdownButtonFormField<String>(
+          value: _selectedDelegateType,
+          validator: (value) => _selectedRole == 'delegate' && value == null ? 'Please select delegate type' : null,
+          items: _delegateTypes.map((type) => DropdownMenuItem(
+            value: type,
+            child: Text(type),
+          )).toList(),
+          onChanged: (value) => setState(() => _selectedDelegateType = value),
+          decoration: InputDecoration(
+            hintText: 'Select Type',
+            hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
+            prefixIcon: Icon(Icons.category_outlined, color: Colors.grey.shade400, size: 20),
+            filled: true,
+            fillColor: Colors.white,
+            contentPadding: const EdgeInsets.symmetric(vertical: 16),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(15),
+              borderSide: BorderSide.none,
+            ),
+          ),
+          dropdownColor: Colors.white,
+          style: const TextStyle(color: Colors.black87),
+        ),
+      ],
     );
   }
 
@@ -437,8 +454,7 @@ class _SignUpContentState extends State<_SignUpContent> {
                 ? IconButton(
                     icon: Icon(
                       isVisible ? Icons.visibility : Icons.visibility_off,
-                      color: Colors.grey.shade400,
-                      size: 20,
+                      color: Colors.grey.shade400, size: 20,
                     ),
                     onPressed: onToggleVisibility,
                   )

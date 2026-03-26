@@ -4,6 +4,7 @@ class UserModel {
   final String uid; // Firebase Auth UID
   final String userId; // Generated ID: ICS26PR-001
   final String role; // presenter, delegate
+  final String? delegateType; // Industry delegate, Invited deligate, PG/PhD scholar
   final String status; // pending, approved, rejected
   final String name;
   final String email;
@@ -24,6 +25,7 @@ class UserModel {
     required this.uid,
     required this.userId,
     required this.role,
+    this.delegateType,
     required this.status,
     required this.name,
     required this.email,
@@ -46,6 +48,7 @@ class UserModel {
       uid: uid,
       userId: map['userId'] ?? '',
       role: map['role'] ?? 'delegate',
+      delegateType: map['delegateType'],
       status: map['status'] ?? 'pending',
       name: map['name'] ?? '',
       email: map['email'] ?? '',
@@ -70,6 +73,7 @@ class UserModel {
     return {
       'userId': userId,
       'role': role,
+      'delegateType': delegateType,
       'status': status,
       'name': name,
       'email': email,
