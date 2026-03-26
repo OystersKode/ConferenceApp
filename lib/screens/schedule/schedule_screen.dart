@@ -389,6 +389,13 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   return false;
                 }).toList();
 
+                // Separate events into: Before Technical Session, The Summary itself, and After
+                int techIndex = filteredEvents.indexWhere((e) => e.type == 'technical_session');
+                
+                List<EventModel> beforeEvents = techIndex != -1 ? filteredEvents.sublist(0, techIndex) : filteredEvents;
+                EventModel? techSummary = techIndex != -1 ? filteredEvents[techIndex] : null;
+                List<EventModel> afterEvents = techIndex != -1 ? filteredEvents.sublist(techIndex + 1) : [];
+
                 return Column(
                   children: [
                     _buildSearchBar(),
@@ -397,13 +404,25 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                         padding: EdgeInsets.only(bottom: 10),
                         child: Text('Searching across sessions...', style: TextStyle(fontSize: 10, color: Colors.grey)),
                       ),
-                    ...filteredEvents.map((event) => _buildTimelineItem(event, day)).toList(),
-                    if (filteredSessions.isNotEmpty) ...[
-                      const SizedBox(height: 30),
-                      _buildFeaturedTracksHeader(),
-                      const SizedBox(height: 15),
-                      _buildFeaturedTracksList(filteredSessions, keynotes, day.id),
+                    
+                    // 1. All events before the technical sessions row
+                    ...beforeEvents.map((event) => _buildTimelineItem(event, day)).toList(),
+                    
+                    // 2. The technical sessions summary row AND Featured Tracks
+                    if (techSummary != null) ...[
+                      _buildTimelineItem(techSummary, day),
+                      if (filteredSessions.isNotEmpty) ...[
+                        const SizedBox(height: 10),
+                        _buildFeaturedTracksHeader(),
+                        const SizedBox(height: 15),
+                        _buildFeaturedTracksList(filteredSessions, keynotes, day.id),
+                        const SizedBox(height: 30),
+                      ],
                     ],
+
+                    // 3. Remaining events (Tea breaks, Parallel sessions, Cultural, etc.)
+                    ...afterEvents.map((event) => _buildTimelineItem(event, day)).toList(),
+
                     if (_searchQuery.isNotEmpty && filteredEvents.isEmpty && filteredSessions.isEmpty)
                       const Padding(
                         padding: EdgeInsets.only(top: 40),

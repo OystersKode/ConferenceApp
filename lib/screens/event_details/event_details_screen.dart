@@ -1,10 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../core/constants/app_colors.dart';
 import '../../widgets/bottom_navbar.dart';
 
 class EventDetailsScreen extends StatelessWidget {
   const EventDetailsScreen({super.key});
+
+  Future<void> _launchURL(String urlString) async {
+    final Uri url = Uri.parse(urlString);
+    if (!await launchUrl(url)) {
+      throw Exception('Could not launch $url');
+    }
+  }
+
+  Future<void> _launchEmail(String email) async {
+    final Uri params = Uri(
+      scheme: 'mailto',
+      path: email,
+    );
+    if (!await launchUrl(params)) {
+      throw Exception('Could not launch email');
+    }
+  }
+
+  Future<void> _launchPhone(String phone) async {
+    final Uri params = Uri(
+      scheme: 'tel',
+      path: phone.replaceAll(' ', ''),
+    );
+    if (!await launchUrl(params)) {
+      throw Exception('Could not launch phone');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -182,9 +210,17 @@ class EventDetailsScreen extends StatelessWidget {
             style: TextStyle(fontSize: 15, color: Color(0xFF334155), fontWeight: FontWeight.w600, height: 1.5),
           ),
           const SizedBox(height: 12),
-          const Text(
-            'Website: https://www.ritindia.edu',
-            style: TextStyle(fontSize: 14, color: AppColors.primary, fontWeight: FontWeight.w500),
+          GestureDetector(
+            onTap: () => _launchURL('https://www.ritindia.edu'),
+            child: const Text(
+              'Website: https://www.ritindia.edu',
+              style: TextStyle(
+                fontSize: 14, 
+                color: AppColors.primary, 
+                fontWeight: FontWeight.w500,
+                decoration: TextDecoration.underline,
+              ),
+            ),
           ),
           const SizedBox(height: 16),
           Row(
@@ -418,30 +454,41 @@ class EventDetailsScreen extends StatelessWidget {
         children: [
           _buildCardHeader(Icons.contact_support, 'Submission & Contact'),
           const SizedBox(height: 16),
-          _buildContactItem(Icons.language, 'Website', 'https://ic-smart.com/'),
-          _buildContactItem(Icons.upload_file, 'Submission', 'https://tinyurl.com/ritsmart'),
-          _buildContactItem(Icons.email, 'Email', 'rit@ic-smart.com'),
-          _buildContactItem(Icons.phone, 'Contact', '+91 9024103815', isLast: true),
+          _buildContactItem(Icons.language, 'Website', 'https://ic-smart.com/', onTap: () => _launchURL('https://ic-smart.com/')),
+          _buildContactItem(Icons.upload_file, 'Submission', 'https://tinyurl.com/ritsmart', onTap: () => _launchURL('https://tinyurl.com/ritsmart')),
+          _buildContactItem(Icons.email, 'Email', 'rit@ic-smart.com', onTap: () => _launchEmail('rit@ic-smart.com')),
+          _buildContactItem(Icons.phone, 'Contact', '+91 9024103815', isLast: true, onTap: () => _launchPhone('+91 9024103815')),
         ],
       ),
     );
   }
 
-  Widget _buildContactItem(IconData icon, String label, String value, {bool isLast = false}) {
+  Widget _buildContactItem(IconData icon, String label, String value, {bool isLast = false, VoidCallback? onTap}) {
     return Padding(
       padding: EdgeInsets.only(bottom: isLast ? 0 : 16),
-      child: Row(
-        children: [
-          Icon(icon, size: 18, color: AppColors.primary),
-          const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(label, style: const TextStyle(fontSize: 11, color: Colors.grey, fontWeight: FontWeight.bold)),
-              Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF1E293B))),
-            ],
-          ),
-        ],
+      child: InkWell(
+        onTap: onTap,
+        child: Row(
+          children: [
+            Icon(icon, size: 18, color: AppColors.primary),
+            const SizedBox(width: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: const TextStyle(fontSize: 11, color: Colors.grey, fontWeight: FontWeight.bold)),
+                Text(
+                  value, 
+                  style: TextStyle(
+                    fontSize: 14, 
+                    fontWeight: FontWeight.w600, 
+                    color: const Color(0xFF1E293B),
+                    decoration: onTap != null ? TextDecoration.underline : null,
+                  )
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
